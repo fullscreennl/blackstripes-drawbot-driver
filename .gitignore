@@ -1,6 +1,10 @@
 # mac stuff
 *DS_Store*
 
+sketchy_driver/sketchy-driver
+sketchy_driver/sketchy-preview
+sketchy_server/sketchy-server
+
 # Object files
 *.o
 *.ko
