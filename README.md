@@ -1,4 +1,6 @@
-blackstripes-drawbot-driver
+*NOTE: This is not a step by step guide for building a drawbot. We are working on this and will publish it when ready on [blackstripes.nl](http://www.blackstripes.nl)*
+
+Blackstripes drawbot driver
 ===========================
 
 This is the driver we use at [blackstripes.nl](http://www.blackstripes.nl). It controls two stepper motors and a single solenoid for pen lifting. The main features are:
@@ -11,7 +13,10 @@ This is the driver we use at [blackstripes.nl](http://www.blackstripes.nl). It c
 6. Standalone operation with a single Raspberry-PI
 
 
-<iframe width="1020" height="574" src="https://www.youtube.com/embed/Wb5XR8IF5E0" frameborder="0" allowfullscreen></iframe>
+![blackstripes drawbots](bs-machines.jpg)
+
+
+[Example video.](https://youtu.be/Wb5XR8IF5E0)
 
 
 Dependencies
