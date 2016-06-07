@@ -72,7 +72,7 @@ Now find out the IP-address of your Raspberry-PI and point your webbrowser to po
 
 ## GPIO pins Raspberry-PI (model B+)
 
-These are the pins to be connected to the setpper drivers and the relay to control the solenoid.
+These are the pins to be connected to the stepper drivers and the relay to control the solenoid.
 
 	#define RIGHT_CLOCK RPI_V2_GPIO_P1_11
 	#define RIGHT_DIR RPI_V2_GPIO_P1_12
@@ -97,7 +97,7 @@ your $PATH in the .bashrc in your home directory.
 For 64bit, use /tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin. 
 While this step is not strictly necessary, it does make it easier for later command lines!
 
-To find out the lib path of this cross-coompiler you need to do this
+To find out the lib path of this cross-compiler you need to do this
 
 $ arm-linux-gnueabihf-gcc -print-sysroot
 
