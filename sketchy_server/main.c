@@ -57,6 +57,15 @@ static void handle_status_call(struct mg_connection *conn) {
 
 }
 
+static void update_config(){
+    struct NSVGimage* image;
+    image = nsvgParseFromFile("job/job.svg", "px", 96);
+    Config_setCanvasWidth(image->width);
+    Config_setCanvasHeight(image->height);
+    Config_setSVGJob("job.svg");
+    Config_write("job/manifest.ini");
+}
+
 static void handle_svg_call(struct mg_connection *conn) {
     DriverState *state = driverState();
     char image_url[255];
@@ -64,6 +73,9 @@ static void handle_svg_call(struct mg_connection *conn) {
     char system_cmd[300] = "";
     sprintf(system_cmd,"wget -O job/job.svg %s",image_url); 
     system(system_cmd);
+
+    update_config();
+
     char message[300]="";
     sprintf(message, "{\"status\": \"success\", "
                            "\"call\" : \"svg\", "
@@ -185,12 +197,7 @@ static int handle_job_upload(struct mg_connection *conn) {
             fwrite(data, 1, data_len, fp);
             fclose(fp);
 
-            struct NSVGimage* image;
-            image = nsvgParseFromFile("job/job.svg", "px", 96);
-            Config_setCanvasWidth(image->width);
-            Config_setCanvasHeight(image->height);
-            Config_setSVGJob("job.svg");
-            Config_write("job/manifest.ini");
+            update_config();
 
          }else if(strcmp(check_lua, ext+1)==0){
 
