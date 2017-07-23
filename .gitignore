@@ -5,6 +5,13 @@ sketchy_driver/sketchy-driver
 sketchy_driver/sketchy-preview
 sketchy_server/sketchy-server
 
+*build*
+
+sketchy_driver/lua-5.2.3/lua
+sketchy_driver/lua-5.2.3/luac
+sketchy_driver/test
+sketchy_driver/tests/test_image.png
+
 # Object files
 *.o
 *.ko

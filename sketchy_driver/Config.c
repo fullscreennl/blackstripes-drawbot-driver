@@ -11,7 +11,7 @@ static char* iniFileName;
 static int Config_handler(void* user, const char* section, const char* name,
                    const char* value)
 {
-    
+
     Config* pconfig = (Config*)user;
     pconfig->_lua = "";
     pconfig->_svg = "";

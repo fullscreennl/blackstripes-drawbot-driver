@@ -127,7 +127,7 @@ void SpeedManager_compute(SpeedManager *sm){
     }
 }
 
-void SpeedManager_append(SpeedManager *sm,float x,float y,int penMode,int solenoidState){
+void SpeedManager_append(SpeedManager *sm, float x, float y, int penMode, int solenoidState){
 
     float dir = atan2(sm->currentY - y, sm->currentX - x);
 
@@ -149,14 +149,14 @@ void SpeedManager_append(SpeedManager *sm,float x,float y,int penMode,int soleno
     sm->currentDirection = dir;
     sm->currentX = x;
     sm->currentY = y;
-    
+
     if(sm->queueLength >= sm->length-1){
 
         DriverCommand *cmd = getCommand();
 
         SpeedManager_copmuteDelay(sm);
         int computedDelay = sm->delay;
-        
+
         if(cmd->commandCode == commandCodePause){
             if(!pausingInitialized){
                 easeOutDelay = sm->delay;
@@ -181,8 +181,6 @@ void SpeedManager_append(SpeedManager *sm,float x,float y,int penMode,int soleno
     }else{
         sm->queueLength ++;
     }
-        
-    
 
 }
 
@@ -229,7 +227,7 @@ void SpeedManager_finish(SpeedManager *sm){
 #ifdef __PI__
     alarm(1);
 #endif
-    
+
 }
 
 void SpeedManager_retain(SpeedManager *sm){

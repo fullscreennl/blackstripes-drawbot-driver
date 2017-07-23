@@ -70,7 +70,7 @@ void loadLua(){
 
     if (luaL_loadfile(L, Config_getScriptName())){
         printf("luaL_loadfile() failed scriptname: %s\n",Config_getScriptName());   
-    }   
+    }
 
     if (lua_pcall(L, 0, 0, 0)){
         printf("lua_pcall() failed\n");  
@@ -111,7 +111,7 @@ static void cubicBez(float x1, float y1, float x2, float y2,
 {
     float x12,y12,x23,y23,x34,y34,x123,y123,x234,y234,x1234,y1234;
     float d;
-    
+
     if (level > 12) return;
 
     x12 = (x1+x2)*0.5f;
@@ -139,7 +139,7 @@ static void cubicBez(float x1, float y1, float x2, float y2,
 
 int drawPath(float* pts, int npts, char closed, float tol)
 {
-    
+
     if(pts[0] > MAX_CANVAS_SIZE_X || pts[1] > MAX_CANVAS_SIZE_Y || pts[0] < 0 || pts[1] < 0 ){
         updateDriverState(driverStateOutOfBoundsError,"","OUT_OF_BOUNDS_ERROR");
         return -1;

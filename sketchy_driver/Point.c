@@ -6,6 +6,7 @@
 #include "FSArray.h"
 #include "FSNumber.h"
 #include "machine-settings.h"
+#include "Model.h"
 
 void Point_calculateAngle(Point *p);
 
@@ -18,6 +19,15 @@ float Point_trimAngle(float inputAngle){
     int degTrimmed = (int)round(inputAngle)%360;
     float toremove = deg - degTrimmed;
     return inputAngle - toremove;
+}
+
+float Point_needsPositionUpdateWith(float x, float y){
+    if(x > BOT->center + BOT_REPOSITION_THRESHOLD){
+        return BOT_REPOSITION_THRESHOLD;
+    }else if(x < BOT->center - BOT_REPOSITION_THRESHOLD){
+        return -BOT_REPOSITION_THRESHOLD;
+    }
+    return 0.0;
 }
 
 FSArray *Point_findCircleCircleIntersections(float cx0, float cy0,float radius0,float cx1,float cy1,float radius1){
@@ -48,18 +58,18 @@ FSArray *Point_findCircleCircleIntersections(float cx0, float cy0,float radius0,
         // Find P2.
         float cx2 = cx0 + a * (cx1 - cx0) / dist;
         float cy2 = cy0 + a * (cy1 - cy0) / dist;
-        
+
         // Get the points P3.
         float x1 = (cx2 + h * (cy1 - cy0) / dist);
         float y1 = (cy2 - h * (cx1 - cx0) / dist);
         Point * intersection1 = Point_alloc(x1,y1);
-                    
+
         float x2 = (cx2 - h * (cy1 - cy0) / dist);
         float y2 = (cy2 + h * (cx1 - cx0) / dist);
         Point * intersection2 = Point_alloc(x2,y2);
 
         FSArray *arr = FSArray_alloc(2);
-        
+
         // See if we have 1 or 2 solutions.
         if (dist == radius0 + radius1){ 
             FSArray_append(arr,intersection1);
@@ -115,88 +125,10 @@ void Point_setNull(Point *p){
     p->y = 0.0;
 }
 
-#ifdef __VPLOTTER__
-
-void Point_calculateSteps(Point *p,float x, float y){
-
-    float xnull = (RIGHT_STEPPER_X - MAX_CANVAS_SIZE_X) / 2.0;
-    float ynull = CANVAS_Y;
-
-    p->x = x;
-    p->y = y;
-
-    x = x + xnull;
-    y = y + ynull;
-
-    float ldx = x - LEFT_STEPPER_X; 
-    float ldy = y - LEFT_STEPPER_Y;
-    float ll = sqrt((ldx*ldx)+(ldy*ldy)); 
-
-    float rdx = x - RIGHT_STEPPER_X;
-    float rdy = y - RIGHT_STEPPER_Y;
-    float rl = sqrt((rdx*rdx)+(rdy*rdy)); 
-    
-    p->left_steps = ll * STEPS_PER_MM - (HOME_LEFT_MM * STEPS_PER_MM);
-    p->right_steps = rl * STEPS_PER_MM - (HOME_RIGHT_MM * STEPS_PER_MM);
-
-}
-
-Point *Point_allocWithXY(float x, float y){
-    Point *p = Point_alloc(x, y);
-    Point_calculateSteps(p,x,y);
-    return p;
-}
-
-void Point_updateWithXY(Point *p,float x, float y){
-    Point_calculateSteps(p,x,y);
-}
-
-void Point_xyFromEngineStates(Point *p,int left_steps, int right_steps){
-
-    float xnull = (RIGHT_STEPPER_X - MAX_CANVAS_SIZE_X) / 2.0;
-    float ynull = CANVAS_Y;
-
-    float l1 = left_steps / STEPS_PER_MM + HOME_LEFT_MM;
-    float l2 = right_steps / STEPS_PER_MM + HOME_RIGHT_MM;
-
-    FSArray *joint = Point_findCircleCircleIntersections(LEFT_STEPPER_X,LEFT_STEPPER_Y,l1,RIGHT_STEPPER_X,RIGHT_STEPPER_Y,l2);
-    Point *point1 = FSArray_objectAtIndex(joint,0);
-    Point *point2 = FSArray_objectAtIndex(joint,1);
-
-    if (point1->y > point2->y){
-        p->x = point1->x - xnull;
-        p->y = point1->y - ynull;
-    }else{
-        p->x = point2->x - xnull;
-        p->y = point2->y - ynull; 
-    }
-
-    FSArray_release(joint);
-
-}
-
-Point *Point_allocWithSteps(int left_steps, int right_steps){
-    Point *p = (Point *) malloc(sizeof(Point));
-    Point_xyFromEngineStates(p,left_steps,right_steps);
-    p->retainCount = 1;
-    p->type = "Point";
-    p->left_steps = left_steps;
-    p->right_steps = right_steps;
-    return p;
-
-}
-
-void Point_updateWithSteps(Point *p,int left_steps, int right_steps){
-    Point_xyFromEngineStates(p,left_steps,right_steps);
-    p->left_steps = left_steps;
-    p->right_steps = right_steps;
-}
-
-#else
 
 Point * Point_xyFromEngineStates(float leftAng, float rightAng){
 
-    float xnull = CENTER - MAX_CANVAS_SIZE_X/2.0;
+    float xnull = Model_getCenter();
     float ynull = SHOULDER_HEIGHT+CANVAS_Y;
 
     float left = leftAng - 180.0 - 180.0;
@@ -204,11 +136,11 @@ Point * Point_xyFromEngineStates(float leftAng, float rightAng){
 
     // left = round(left / ANGLE_PER_STEP) * ANGLE_PER_STEP;
     // right = round(right / ANGLE_PER_STEP) * ANGLE_PER_STEP;
-    
-    float lx = cos(Point_toRadians(left)) * UPPER_ARM_LENGTH + LEFT_SHOULDER_POS_X;
+
+    float lx = cos(Point_toRadians(left)) * UPPER_ARM_LENGTH + Model_getLeftShoulderX();
     float ly = sin(Point_toRadians(left)) * UPPER_ARM_LENGTH + LEFT_SHOULDER_POS_Y;
-    
-    float rx = cos(Point_toRadians(right)) * UPPER_ARM_LENGTH + RIGHT_SHOULDER_POS_X;
+
+    float rx = cos(Point_toRadians(right)) * UPPER_ARM_LENGTH + Model_getRightShoulderX();
     float ry = sin(Point_toRadians(right)) * UPPER_ARM_LENGTH + RIGHT_SHOULDER_POS_Y;
 
     ly = ly - ynull;
@@ -238,17 +170,17 @@ Point * Point_xyFromEngineStates(float leftAng, float rightAng){
 
 FSArray * Point_engineStatesFromXYonCanvas(float _x, float _y){
 
-    float xnull = CENTER - MAX_CANVAS_SIZE_X/2.0;
+    float xnull = Model_getCenter();
     float ynull = SHOULDER_HEIGHT+CANVAS_Y;
 
     float x = xnull+_x;
     float y = ynull+_y;
 
-    float lsx = LEFT_SHOULDER_POS_X;
+    float lsx = Model_getLeftShoulderX();
     float lsy = LEFT_SHOULDER_POS_Y;
-    float rsx  = RIGHT_SHOULDER_POS_X;
+    float rsx  = Model_getRightShoulderX();
     float rsy = RIGHT_SHOULDER_POS_Y;
-        
+
     Point *leftelbow;
     Point *rightelbow;
 
@@ -260,13 +192,13 @@ FSArray * Point_engineStatesFromXYonCanvas(float _x, float _y){
     }else{
         leftelbow = leftpoint_2;
     }
-            
+
     float angle_in_degrees_left = atan2(leftelbow->y - lsy, leftelbow->x - lsx) * 180.0 / M_PI;
     float angle_in_rad_left = atan2(y - leftelbow->y, x - leftelbow->x);
-        
+
     float mx = cos(angle_in_rad_left) * (LOWER_ARM_LENGTH) + leftelbow->x;
     float my = sin(angle_in_rad_left) * (LOWER_ARM_LENGTH) + leftelbow->y;
-            
+
     FSArray *rightpoints = Point_findCircleCircleIntersections(mx,my,LOWER_ARM_LENGTH,rsx,rsy,UPPER_ARM_LENGTH);
     Point *rightpoint_1 = FSArray_objectAtIndex(rightpoints,0);
     Point *rightpoint_2 = FSArray_objectAtIndex(rightpoints,1);
@@ -277,7 +209,7 @@ FSArray * Point_engineStatesFromXYonCanvas(float _x, float _y){
     }
 
     float angle_in_degrees_right = atan2(rightelbow->y - rsy, rightelbow->x - rsx) * 180.0 / M_PI;
-        
+
     angle_in_degrees_left = angle_in_degrees_left + 180.0 + 180.0 ;
     angle_in_degrees_left = Point_trimAngle(angle_in_degrees_left);
     angle_in_degrees_right = -angle_in_degrees_right + 180.0;
@@ -355,7 +287,4 @@ void Point_calculateAngle(Point *p){
 
     FSArray_release(angles);
 }
-
-#endif
-
 

@@ -14,24 +14,25 @@ typedef enum solenoidState{
     solenoidStateDown = 1
 }SolenoidState;
 
-typedef enum penMode{  
-	penModeImage = 1,
-	penModeManualUp = 2,
-	penModeManualDown = 3
+typedef enum penMode{
+    penModeImage = 1,
+    penModeManualUp = 2,
+    penModeManualDown = 3
 }PenMode;
 
 typedef struct FSBotState{
-	int retainCount;
-	char *type;
-	Point *home;
-	Point *currentLocation;
-	SpeedManager *speedManager;
-	int leftsteps;
-	int rightsteps;
-	int delay;
-	void (*executeStepCallback)(Step *step);
-	PenMode penMode;
-	PenMode scheduledPenMode;
+    float center;
+    int retainCount;
+    char *type;
+    Point *home;
+    Point *currentLocation;
+    SpeedManager *speedManager;
+    int leftsteps;
+    int rightsteps;
+    int delay;
+    void (*executeStepCallback)(Step *step);
+    PenMode penMode;
+    PenMode scheduledPenMode;
 }BotState;
 
 BotState *BOT;
@@ -48,6 +49,9 @@ void Model_setExecuteStepCallback(void (*executeStepCallback)(Step *step));
 void Model_setPenMode(PenMode mode);
 void Model_finish();
 void Model_resume();
+int Model_getCenter();
+int Model_getLeftShoulderX();
+int Model_getRightShoulderX();
 
 void report_memory(int id);
 

@@ -2,7 +2,7 @@
 #include "../SpeedManager.h"
 #include "../Config.h"
 #include "../machine-settings.h"
-
+#include "../Point.h"
 
 #ifndef SPEED_MANAGER_TEST_H
 #define SPEED_MANAGER_TEST_H

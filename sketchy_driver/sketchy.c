@@ -131,19 +131,10 @@ void executeStep(Step *step){
     }else{
         solenoid = solenoidStateUp;
     }
-        
+
     if(stepleft != leftdir){
 
-#ifdef __VPLOTTER__
-
-        if(stepleft == stepperMotorDirUp){
-            bcm2835_gpio_write(LEFT_DIR, HIGH);
-        }else if(stepleft == stepperMotorDirDown){
-            bcm2835_gpio_write(LEFT_DIR, LOW);
-        }
-
-#else
-	//FOR MINI blackstripes with no gearboxes HIGH and LOW should be inverted for left only, NOT RIGHT!!
+        //FOR MINI blackstripes with no gearboxes HIGH and LOW should be inverted for left only, NOT RIGHT!!
         //the gearboxes are mirrored to make the machine look better
         //so the direction signals have to be inverted
         if(stepleft == stepperMotorDirUp){
@@ -152,12 +143,10 @@ void executeStep(Step *step){
             bcm2835_gpio_write(LEFT_DIR, HIGH);
         }
 
-#endif
-        
         leftdir = stepleft;
-        
+
     }
-    
+
     if(stepright != rightdir){
 
         if(stepright == stepperMotorDirUp){
@@ -165,9 +154,9 @@ void executeStep(Step *step){
         }else if(stepright == stepperMotorDirDown){
             bcm2835_gpio_write(RIGHT_DIR, HIGH);
         }
-        
+
         rightdir = stepright;
-        
+
     }
 
     if(solenoidstate != solenoid){
@@ -189,24 +178,24 @@ void executeStep(Step *step){
     if (stepright != stepperMotorDirNone) {
         bcm2835_gpio_write(RIGHT_CLOCK, HIGH);
     }
-    
+
     rt_task_sleep(100);
-    
+
     if (stepleft != stepperMotorDirNone) {
         bcm2835_gpio_write(LEFT_CLOCK, LOW);
     }
     if (stepright != stepperMotorDirNone) {
         bcm2835_gpio_write(RIGHT_CLOCK, LOW);
     }
-    
+
     rt_task_set_periodic(&draw_task, TM_NOW, BOT->delay);
 
 #else
 
     int x = floor(p->x);
     int y = floor(p->y);
-    Preview_setPixel(PREVIEW,x,y,BOT->delay, shouldDraw);
-    Preview_setPixel(PREVIEW_PEN_MOVE,x,y,BOT->delay, !shouldDraw);
+    Preview_setPixel(PREVIEW, x , y, BOT->delay, shouldDraw);
+    Preview_setPixel(PREVIEW_PEN_MOVE, x , y, BOT->delay, !shouldDraw);
     stepCounter ++;
     if(stepCounter%10000 == 0){
         Preview_save(PREVIEW);
@@ -215,7 +204,7 @@ void executeStep(Step *step){
 #endif
 
     Point_release(p);
-    
+
 }
 
 void catch_signal(int sig)
