@@ -41,6 +41,10 @@ int Model_getCenter(){
     return BOT->center;
 }
 
+void Model_setCenter(float newCenter){
+    BOT->center = newCenter;
+}
+
 int Model_getLeftShoulderX(){
     return BOT->center + LEFT_SHOULDER_OFFSET;
 }
@@ -280,6 +284,19 @@ void Model_moveHome(){
 }
 
 void Model_moveTo(Point *dest){
+
+    float position_update = Point_needsPositionUpdateWith(dest->x, dest->y);
+    if(position_update > 0){
+        while(position_update --){
+            Model_setCenter(BOT->center + 1);
+            Model_moveTo(BOT->currentLocation);
+        }
+    }else if(position_update < 0){
+        while(0 > position_update ++){
+            Model_setCenter(BOT->center - 1);
+            Model_moveTo(BOT->currentLocation);
+        }
+    }
 
     int w = Config_getCanvasWidth();
     int h = Config_getCanvasHeight();

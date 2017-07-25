@@ -36,17 +36,23 @@ static void Point_testForXY(float x, float y){
 
     }
 
+    printf("-------\n\n");
+
 }
 
 void Point_test(){
 
     Point *home = Point_allocWithSteps(0 ,0);
 
+    Model_setCenter(2000.0);
+
     Point_testForXY(home->x,home->y);
     Point_testForXY(500,500);
     Point_testForXY(30,600);
     Point_testForXY(30.5,20.556);
-    Point_testForXY(1000,5000);
+    Point_testForXY(1000,500);
+    Point_testForXY(5000,500);
+    Point_testForXY(1800,500);
 
     Point_release(home);
 

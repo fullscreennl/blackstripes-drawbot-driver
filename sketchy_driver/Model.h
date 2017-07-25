@@ -50,6 +50,7 @@ void Model_setPenMode(PenMode mode);
 void Model_finish();
 void Model_resume();
 int Model_getCenter();
+void Model_setCenter(float newCenter);
 int Model_getLeftShoulderX();
 int Model_getRightShoulderX();
 

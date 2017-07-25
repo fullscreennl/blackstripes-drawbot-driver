@@ -216,21 +216,21 @@ int run(void (*executeMotion)()){
     Model_createInstance();
     Model_setExecuteStepCallback(executeStep);
     Model_logState();
-    
+
 #ifdef __PI__
-    
+
     signal(SIGTERM, catch_signal);
     signal(SIGINT, catch_signal);
     signal(SIGALRM, catch_signal);
-    
+
     /* Avoids memory swapping for this program */
     mlockall(MCL_CURRENT|MCL_FUTURE);
-    
+
     if (!bcm2835_init()){
         printf("error\n");
         //return 1;
     }
-    
+
     bcm2835_gpio_fsel(RIGHT_CLOCK, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(RIGHT_DIR, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(LEFT_CLOCK, BCM2835_GPIO_FSEL_OUTP);
@@ -240,7 +240,7 @@ int run(void (*executeMotion)()){
     bcm2835_gpio_write(SOLENOID, HIGH);
     rt_task_set_periodic(&draw_task, TM_NOW, BOT->delay);
     rt_task_set_periodic(&watchdog_task, TM_NOW, 500000);
-    
+
     /*
      * Arguments: &task,
      *            name,
@@ -257,15 +257,15 @@ int run(void (*executeMotion)()){
      */
     rt_task_start(&draw_task, executeMotion, NULL);
     rt_task_start(&watchdog_task, &watch, NULL);
-    
+
     pause();
-    
+
     rt_task_delete(&draw_task);
     rt_task_delete(&watchdog_task);
-    
+
     bcm2835_gpio_write(SOLENOID, HIGH);
-    
-    
+
+
 #else
 
     PREVIEW = Preview_alloc((int)MAX_CANVAS_SIZE_X,(int)MAX_CANVAS_SIZE_Y,"preview_image.png",Config_maxDelay(),Config_minDelay());

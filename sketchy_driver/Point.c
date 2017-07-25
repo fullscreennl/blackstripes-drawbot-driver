@@ -23,9 +23,9 @@ float Point_trimAngle(float inputAngle){
 
 float Point_needsPositionUpdateWith(float x, float y){
     if(x > BOT->center + BOT_REPOSITION_THRESHOLD){
-        return BOT_REPOSITION_THRESHOLD;
+        return x - BOT->center;
     }else if(x < BOT->center - BOT_REPOSITION_THRESHOLD){
-        return -BOT_REPOSITION_THRESHOLD;
+        return x - BOT->center;
     }
     return 0.0;
 }
@@ -164,7 +164,7 @@ Point * Point_xyFromEngineStates(float leftAng, float rightAng){
     float mx = cos(angle_in_rad_left) * (LOWER_ARM_LENGTH + EXENSION1) + lx;
     float my = sin(angle_in_rad_left) * (LOWER_ARM_LENGTH + EXENSION1) + ly;
 
-    return Point_alloc(mx,my);
+    return Point_alloc(mx + Model_getCenter(), my);
 
 }
 
@@ -173,8 +173,8 @@ FSArray * Point_engineStatesFromXYonCanvas(float _x, float _y){
     float xnull = Model_getCenter();
     float ynull = SHOULDER_HEIGHT+CANVAS_Y;
 
-    float x = xnull+_x;
-    float y = ynull+_y;
+    float x = xnull + _x - Model_getCenter();
+    float y = ynull + _y;
 
     float lsx = Model_getLeftShoulderX();
     float lsy = LEFT_SHOULDER_POS_Y;
