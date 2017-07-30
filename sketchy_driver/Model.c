@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include <stdlib.h>
 #include <math.h>
 #include "Model.h"
@@ -36,6 +37,21 @@ void report_memory(int id) {
 #endif
 
 }
+
+void log_time(){
+
+    time_t timer;
+    char buffer[26];
+    struct tm* tm_info;
+
+    time(&timer);
+    tm_info = localtime(&timer);
+
+    strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+    puts(buffer);
+
+}
+
 
 int Model_getCenter(){
     return BOT->center;
@@ -252,7 +268,24 @@ void Model_computeSegments(Point *dest){
     for (i=0; i < numsteps-1; i++){
         x = x - xstep;
         y = y - ystep;
+
+        /**
+        float position_update = Point_needsPositionUpdateWith(x, y);
+        if(position_update > 0){
+            while(position_update --){
+                Model_setCenter(BOT->center + 1);
+                Model_moveTo(BOT->currentLocation);
+            }
+        }else if(position_update < 0){
+            while(0 > position_update ++){
+                Model_setCenter(BOT->center - 1);
+                Model_moveTo(BOT->currentLocation);
+            }
+        }
+        */
+
         Point *p = Point_allocWithXY(x,y);
+        //Point_log(p);
         bool willDraw = willDrawForLevelAtPoint(p);
         Point_release(p);
         SpeedManager_append(sm,x,y,BOT->scheduledPenMode,willDraw);
@@ -278,25 +311,13 @@ void SpeedManager_callback(float x, float y, int delay,int cursor,int penMode){
 }
 
 void Model_moveHome(){
+    printf("homing...\n");
     //Model_moveTo(BOT->home);
     Model_computeSegments(BOT->home);
     Point_updateWithXY(BOT->currentLocation,BOT->home->x,BOT->home->y);
 }
 
 void Model_moveTo(Point *dest){
-
-    float position_update = Point_needsPositionUpdateWith(dest->x, dest->y);
-    if(position_update > 0){
-        while(position_update --){
-            Model_setCenter(BOT->center + 1);
-            Model_moveTo(BOT->currentLocation);
-        }
-    }else if(position_update < 0){
-        while(0 > position_update ++){
-            Model_setCenter(BOT->center - 1);
-            Model_moveTo(BOT->currentLocation);
-        }
-    }
 
     int w = Config_getCanvasWidth();
     int h = Config_getCanvasHeight();

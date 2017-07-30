@@ -199,6 +199,7 @@ void executeStep(Step *step){
     stepCounter ++;
     if(stepCounter%10000 == 0){
         Preview_save(PREVIEW);
+        Preview_save(PREVIEW_PEN_MOVE);
     }
 
 #endif

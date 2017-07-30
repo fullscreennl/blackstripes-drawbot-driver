@@ -53,6 +53,7 @@ int Model_getCenter();
 void Model_setCenter(float newCenter);
 int Model_getLeftShoulderX();
 int Model_getRightShoulderX();
+void log_time();
 
 void report_memory(int id);
 
