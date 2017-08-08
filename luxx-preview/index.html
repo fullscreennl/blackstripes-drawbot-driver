@@ -2,22 +2,23 @@
 <html>
   <head>
     <script type="text/javascript" src="d3/d3.min.js"></script>
+    <script type="text/javascript" src="../build/movement.js"></script>
   </head>
   <body>
   </body>
   <script type='text/javascript'>
 
-    var LEFT_SHOULDER = 0;
-    var RIGHT_SHOULDER = 30;
+    var LEFT_SHOULDER = 100;
+    var RIGHT_SHOULDER = 130;
     var UPPER_ARM_LENGTH = 100;
-    var LOWER_ARM_LENGTH = 130;
-    var EXT = 20;
+    var LOWER_ARM_LENGTH = 120;
+    var EXT = 7.2;
 
     var bodySelection = d3.select("body");
 
     var svgSelection = bodySelection.append("svg")
-           .attr("width", 1000)
-           .attr("height", 225);
+           .attr("width", 1500)
+           .attr("height", 250);
 
     svgSelection.append("rect")
         .attr("width", "100%")
@@ -107,7 +108,7 @@
         return {x: xi, y: yi};
     }
 
-    function update(offset, left, right){
+    function update(offset, left, right, draw){
 
         leftEngine.attr('cx', LEFT_SHOULDER + offset);
         rightEngine.attr('cx', RIGHT_SHOULDER + offset);
@@ -144,23 +145,26 @@
 
         joint.attr("cx", jointPos.x).attr("cy", jointPos.y);  
         marker.attr("cx", _markerPos.x).attr("cy", _markerPos.y);             
-
+       
+        if(draw){
+          svgSelection.append("circle")
+                         .attr("cx", _markerPos.x)
+                         .attr("cy", _markerPos.y)
+                         .attr("r", 1)
+                         .style("fill", "black");
+        }
     }
 
-    
+    var i = 0;
+    setInterval(function(){
+      if(i+2 < DATA.length){ 
+        update(DATA[i+2], DATA[i], DATA[i+1]-180, DATA[i+3]);
+        i += 4;
+      }else{
+        return;
+      }
+    }, 2);
 
-    var a1 = 45;
-    var a2 = 23;
-    var d = 100;
-    update(d, 180-a1, a2);
 
-    
-    setInterval(function(){ 
-      d ++;
-      a1 ++;
-      //a2 ++;
-      update(d, 180-a1, a2);
-    }, 1);
-    
   </script>
 </html>

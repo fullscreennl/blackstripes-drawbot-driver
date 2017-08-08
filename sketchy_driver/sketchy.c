@@ -198,11 +198,13 @@ void executeStep(Step *step){
     int y = floor(p->y);
     Preview_setPixel(PREVIEW, x , y, BOT->delay, shouldDraw);
     Preview_setPixel(PREVIEW_PEN_MOVE, x , y, BOT->delay, !shouldDraw);
+    if(stepCounter%100 == 0){
+    	fprintf (fp, "%f, %f, %f, %i, \n", p->left_angle, p->right_angle, BOT->center, shouldDraw);
+    }
     stepCounter ++;
     if(stepCounter%10000 == 0){
         Preview_save(PREVIEW);
         Preview_save(PREVIEW_PEN_MOVE);
-        fprintf (fp, "%f, %f, %f\n", p->left_angle, p->right_angle, BOT->center);
     }
 
 #endif
@@ -272,7 +274,8 @@ int run(void (*executeMotion)()){
 
 #else
 
-    fp = fopen("movement.json","w");
+    fp = fopen("movement.js","w");
+    fprintf(fp, "var DATA = [\n");
     PREVIEW = Preview_alloc((int)MAX_CANVAS_SIZE_X,(int)MAX_CANVAS_SIZE_Y,"preview_image.png",Config_maxDelay(),Config_minDelay());
     PREVIEW_PEN_MOVE = Preview_alloc((int)MAX_CANVAS_SIZE_X,(int)MAX_CANVAS_SIZE_Y,"pen_move_image.png",Config_maxDelay(),Config_minMoveDelay());
 
@@ -282,6 +285,7 @@ int run(void (*executeMotion)()){
     Preview_release(PREVIEW);
     Preview_save(PREVIEW_PEN_MOVE);
     Preview_release(PREVIEW_PEN_MOVE);
+    fprintf(fp, "]\n");
     fclose(fp);
 
 #endif
