@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="d3/d3.min.js"></script>
+  </head>
+  <body>
+  </body>
+  <script type='text/javascript'>
+
+    var LEFT_SHOULDER = 0;
+    var RIGHT_SHOULDER = 30;
+    var UPPER_ARM_LENGTH = 100;
+    var LOWER_ARM_LENGTH = 130;
+    var EXT = 20;
+
+    var bodySelection = d3.select("body");
+
+    var svgSelection = bodySelection.append("svg")
+           .attr("width", 1000)
+           .attr("height", 225);
+
+    svgSelection.append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("fill", "pink");
+
+    function arm(){
+      return svgSelection.append("line")
+                 .attr("x1", 0)
+                 .attr("y1", 0)
+                 .attr("x2", 0)
+                 .attr("y2", 0)
+                 .attr("stroke-width", 2)
+                 .attr("stroke", "black");
+    }
+
+    function circ(r, y){
+      return svgSelection.append("circle")
+               .attr("cx", 0)
+               .attr("cy", y)
+               .attr("r", r)
+               .style("fill", "purple");
+    }
+
+    var leftUpperArm = arm();
+    var leftLowerArm = arm();
+    var rightUpperArm = arm();
+    var rightLowerArm = arm();
+    var leftEngine = circ(10, 25);
+    var rightEngine = circ(10, 25);
+    var elbowLeft = circ(6, 0);
+    var elbowRight = circ(6, 0);
+    var joint = circ(4, 0);
+    var marker = circ(4, 0);
+
+    function posForElbow(angle, offset, shoulder){
+      angle = angle / 57.2957795;
+      var cx = shoulder + offset;
+      var cy = 25;
+      var radius = UPPER_ARM_LENGTH;
+      var x = cx + radius * Math.cos(angle);
+      var y = cy + radius * Math.sin(angle);
+      return {x: x, y: y};
+    }
+
+    function getPos(angle, offset){
+      return posForElbow(angle, offset, LEFT_SHOULDER);
+    }
+
+    function getPos2(angle, offset){
+      return posForElbow(angle, offset, RIGHT_SHOULDER);
+    }
+
+    function markerPos(cx, cy, ex, ey) {
+      var dy = ey - cy;
+      var dx = ex - cx;
+      var angle = Math.atan2(dy, dx);
+      var radius = LOWER_ARM_LENGTH + EXT;
+      var x = cx + radius * Math.cos(angle);
+      var y = cy + radius * Math.sin(angle);
+      return {x: x, y: y};
+
+    }
+
+    function intersection(x0, y0, r0, x1, y1, r1) {
+        var a, dx, dy, d, h, rx, ry;
+        var x2, y2;
+        dx = x1 - x0;
+        dy = y1 - y0;
+        d = Math.sqrt((dy*dy) + (dx*dx));
+        if (d > (r0 + r1)) {
+            return false;
+        }
+        if (d < Math.abs(r0 - r1)) {
+            return false;
+        }
+        a = ((r0*r0) - (r1*r1) + (d*d)) / (2.0 * d) ;
+        x2 = x0 + (dx * a/d);
+        y2 = y0 + (dy * a/d);
+        h = Math.sqrt((r0*r0) - (a*a));
+        rx = -dy * (h/d);
+        ry = dx * (h/d);
+        var xi = x2 + rx;
+        var xi_prime = x2 - rx;
+        var yi = y2 + ry;
+        var yi_prime = y2 - ry;
+        return {x: xi, y: yi};
+    }
+
+    function update(offset, left, right){
+
+        leftEngine.attr('cx', LEFT_SHOULDER + offset);
+        rightEngine.attr('cx', RIGHT_SHOULDER + offset);
+
+        var pos1 = getPos(left, offset);
+        elbowLeft.attr("cx", pos1.x).attr("cy", pos1.y);
+
+        var pos2 = getPos2(right, offset);
+        elbowRight.attr("cx", pos2.x).attr("cy", pos2.y);
+
+        leftUpperArm.attr("x1", LEFT_SHOULDER + offset)
+            .attr("y1", 25)
+            .attr("x2", pos1.x)
+            .attr("y2", pos1.y);
+
+        rightUpperArm.attr("x1", RIGHT_SHOULDER + offset)
+            .attr("y1", 25)
+            .attr("x2", pos2.x)
+            .attr("y2", pos2.y);
+
+        var jointPos = intersection(pos1.x, pos1.y, LOWER_ARM_LENGTH, 
+                                    pos2.x, pos2.y, LOWER_ARM_LENGTH);
+        var _markerPos = markerPos(pos1.x, pos1.y, jointPos.x, jointPos.y);
+
+        leftLowerArm.attr("x1", pos1.x)
+            .attr("y1", pos1.y)
+            .attr("x2", _markerPos.x)
+            .attr("y2", _markerPos.y);
+
+        rightLowerArm.attr("x1", pos2.x)
+            .attr("y1", pos2.y)
+            .attr("x2", jointPos.x)
+            .attr("y2", jointPos.y);
+
+        joint.attr("cx", jointPos.x).attr("cy", jointPos.y);  
+        marker.attr("cx", _markerPos.x).attr("cy", _markerPos.y);             
+
+    }
+
+    
+
+    var a1 = 45;
+    var a2 = 23;
+    var d = 100;
+    update(d, 180-a1, a2);
+
+    
+    setInterval(function(){ 
+      d ++;
+      a1 ++;
+      //a2 ++;
+      update(d, 180-a1, a2);
+    }, 1);
+    
+  </script>
+</html>

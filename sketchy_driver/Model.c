@@ -58,7 +58,15 @@ int Model_getCenter(){
 }
 
 void Model_setCenter(float newCenter){
+    int incr = 1;
+    if (BOT->center > newCenter){
+        incr = -1;
+    }
     BOT->center = newCenter;
+
+    Point_updateWithXY(BOT->currentLocation,
+                       BOT->currentLocation->x + incr,
+                       BOT->currentLocation->y);
 }
 
 int Model_getLeftShoulderX(){
@@ -269,20 +277,18 @@ void Model_computeSegments(Point *dest){
         x = x - xstep;
         y = y - ystep;
 
-        /**
         float position_update = Point_needsPositionUpdateWith(x, y);
         if(position_update > 0){
             while(position_update --){
                 Model_setCenter(BOT->center + 1);
-                Model_moveTo(BOT->currentLocation);
+                //Model_moveTo(BOT->currentLocation);
             }
         }else if(position_update < 0){
             while(0 > position_update ++){
                 Model_setCenter(BOT->center - 1);
-                Model_moveTo(BOT->currentLocation);
+                //Model_moveTo(BOT->currentLocation);
             }
         }
-        */
 
         Point *p = Point_allocWithXY(x,y);
         //Point_log(p);
@@ -331,5 +337,3 @@ void Model_moveTo(Point *dest){
 void Model_setExecuteStepCallback(void (*executeStepCallback)(Step *step)){
     BOT->executeStepCallback = executeStepCallback;
 }
-
-

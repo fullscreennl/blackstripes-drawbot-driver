@@ -244,11 +244,8 @@ Point *Point_allocWithXY(float x, float y){
 }
 
 void Point_updateWithXY(Point *p,float x, float y){
-    float currentX = BOT->currentLocation->x;
-    float targetX = dest->x;
-    float xDist = targetX - currentX;
-    float numSegments = xDist / BOT_REPOSITION_THRESHOLD;
-    printf("num segmenets %f \n", dest->x);
+
+
     p->x = x;
     p->y = y;
     Point_calculateAngle(p);

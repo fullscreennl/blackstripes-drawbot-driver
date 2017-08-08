@@ -42,7 +42,9 @@ StepperMotorDir rightdir = stepperMotorDirNone;
 SolenoidState solenoidstate = solenoidStateUp;
 SolenoidState solenoid = solenoidStateUp;
 
+
 #ifndef __PI__
+FILE *fp;
 Preview *PREVIEW;
 Preview *PREVIEW_PEN_MOVE;
 long stepCounter = 0;
@@ -200,6 +202,7 @@ void executeStep(Step *step){
     if(stepCounter%10000 == 0){
         Preview_save(PREVIEW);
         Preview_save(PREVIEW_PEN_MOVE);
+        fprintf (fp, "%f, %f, %f\n", p->left_angle, p->right_angle, BOT->center);
     }
 
 #endif
@@ -269,6 +272,7 @@ int run(void (*executeMotion)()){
 
 #else
 
+    fp = fopen("movement.json","w");
     PREVIEW = Preview_alloc((int)MAX_CANVAS_SIZE_X,(int)MAX_CANVAS_SIZE_Y,"preview_image.png",Config_maxDelay(),Config_minDelay());
     PREVIEW_PEN_MOVE = Preview_alloc((int)MAX_CANVAS_SIZE_X,(int)MAX_CANVAS_SIZE_Y,"pen_move_image.png",Config_maxDelay(),Config_minMoveDelay());
 
@@ -278,6 +282,7 @@ int run(void (*executeMotion)()){
     Preview_release(PREVIEW);
     Preview_save(PREVIEW_PEN_MOVE);
     Preview_release(PREVIEW_PEN_MOVE);
+    fclose(fp);
 
 #endif
 

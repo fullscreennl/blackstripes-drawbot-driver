@@ -23,6 +23,44 @@
 
 Point *POINT;
 
+void moveTo(float x, float y){
+
+    float currentX = BOT->currentLocation->x;
+    float targetX = x;
+    float xDist = targetX - currentX;
+    if(fabs(xDist) < BOT_REPOSITION_THRESHOLD){
+        Point_updateWithXY(POINT, x, y);
+        Model_moveTo(POINT);
+    }else{
+        float numSegments = ceil(xDist / BOT_REPOSITION_THRESHOLD) - 1;
+        float distTraveled = currentX;
+
+        float amount = BOT_REPOSITION_THRESHOLD;
+        if(xDist < 0){
+           amount = -BOT_REPOSITION_THRESHOLD;
+        }
+
+        distTraveled += amount;
+        while(numSegments --){
+            printf("goto x: %f \n",distTraveled);
+            Point_updateWithXY(POINT, distTraveled, y);
+            Model_moveTo(POINT);
+            Point_log(POINT);
+            distTraveled += amount;
+        }
+
+        Point_updateWithXY(POINT, x, y);
+        Model_moveTo(POINT);
+
+    }
+}
+
+void home(){
+    printf("homing...\n");
+    moveTo(BOT->home->x, BOT->home->y);
+}
+
+
 int __moveTo(lua_State *L){
 
     DriverCommand *cmd = getCommand();
@@ -33,8 +71,7 @@ int __moveTo(lua_State *L){
 
     float x = lua_tonumber(L, 1);
     float y = lua_tonumber(L, 2);
-    Point_updateWithXY(POINT,x,y);
-    Model_moveTo(POINT);
+    moveTo(x, y);
 
     return 0;
 }
@@ -82,7 +119,7 @@ void loadLua(){
 void runLuaScript(){
     POINT = Point_allocWithSteps(0 ,0);
     loadLua();
-    Model_moveHome();
+    home();
     Model_finish();
     Point_release(POINT);
 }
@@ -132,8 +169,7 @@ static void cubicBez(float x1, float y1, float x2, float y2,
         cubicBez(x1,y1, x12,y12, x123,y123, x1234,y1234, tol, level+1); 
         cubicBez(x1234,y1234, x234,y234, x34,y34, x4,y4, tol, level+1); 
     } else {
-        Point_updateWithXY(POINT,x4,y4);
-        Model_moveTo(POINT);
+        moveTo(x4, y4);
     }
 }
 
@@ -145,8 +181,7 @@ int drawPath(float* pts, int npts, char closed, float tol)
         return -1;
     }
 
-    Point_updateWithXY(POINT,pts[0],pts[1]);
-    Model_moveTo(POINT);
+    moveTo(pts[0], pts[1]);
     Model_setPenMode(penModeManualDown);
 
     int i;
@@ -160,8 +195,7 @@ int drawPath(float* pts, int npts, char closed, float tol)
     }
 
     if (closed) {
-        Point_updateWithXY(POINT,pts[0],pts[1]);
-        Model_moveTo(POINT);
+        moveTo(pts[0], pts[1]);
     }
 
     Model_setPenMode(penModeManualUp);
@@ -194,7 +228,7 @@ void runSVG(){
             if(status == -1){
                 nsvgDelete(image);
                 Model_setPenMode(penModeManualUp);
-                Model_moveHome();
+                home();
                 Model_finish();
                 Point_release(POINT);
                 return;
@@ -203,7 +237,7 @@ void runSVG(){
     }
 
     nsvgDelete(image);
-    Model_moveHome();
+    home();
     Model_finish();
     Point_release(POINT);
 
