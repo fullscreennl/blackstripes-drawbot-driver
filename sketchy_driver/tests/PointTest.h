@@ -44,7 +44,7 @@ void Point_test(){
 
     Point *home = Point_allocWithSteps(0 ,0);
 
-    Model_setCenter(2000.0);
+    Model_setCenter(0.0);
 
     Point_testForXY(home->x,home->y);
     Point_testForXY(500,500);
