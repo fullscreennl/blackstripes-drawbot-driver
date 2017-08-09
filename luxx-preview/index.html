@@ -158,7 +158,7 @@
     var i = 0;
     setInterval(function(){
       if(i+2 < DATA.length){ 
-        update(DATA[i+2], -DATA[i], DATA[i+1]-180, DATA[i+3]);
+        update(DATA[i+2], DATA[i], -DATA[i+1]-180, DATA[i+3]);
         i += 4;
       }else{
         return;
