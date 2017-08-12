@@ -32,7 +32,7 @@ void moveTo(float x, float y){
         Point_updateWithXY(POINT, x, y);
         Model_moveTo(POINT);
     }else{
-        float numSegments = ceil(xDist / BOT_REPOSITION_THRESHOLD) - 1;
+        float numSegments = ceil(xDist / BOT_REPOSITION_THRESHOLD);
         float distTraveled = currentX;
 
         float amount = BOT_REPOSITION_THRESHOLD;
@@ -40,7 +40,7 @@ void moveTo(float x, float y){
            amount = -BOT_REPOSITION_THRESHOLD;
         }
 
-        distTraveled += amount;
+        // distTraveled += amount;
         while(numSegments --){
             printf("goto x: %f \n",distTraveled);
             Point_updateWithXY(POINT, distTraveled, y);

@@ -282,11 +282,21 @@ void Model_computeSegments(Point *dest){
             while(position_update --){
                 Model_setCenter(BOT->center + 1);
                 //Model_moveTo(BOT->currentLocation);
+                Point *p = Point_allocWithXY(x,y);
+                //Point_log(p);
+                bool willDraw = willDrawForLevelAtPoint(p);
+                Point_release(p);
+                SpeedManager_append(sm,x,y,BOT->scheduledPenMode,willDraw);
             }
         }else if(position_update < 0){
             while(0 > position_update ++){
                 Model_setCenter(BOT->center - 1);
                 //Model_moveTo(BOT->currentLocation);
+                Point *p = Point_allocWithXY(x,y);
+                //Point_log(p);
+                bool willDraw = willDrawForLevelAtPoint(p);
+                Point_release(p);
+                SpeedManager_append(sm,x,y,BOT->scheduledPenMode,willDraw);
             }
         }
 
