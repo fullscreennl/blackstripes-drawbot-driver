@@ -74,7 +74,7 @@ void Model_resume(){
     SpeedManager_resume(BOT->speedManager);
 }
 
-void Model_addStep(int left, int right){
+void Model_addStep(int left, int right, int center){
 
     if(left == stepperMotorDirUp){
         BOT->leftsteps ++;
@@ -88,6 +88,14 @@ void Model_addStep(int left, int right){
         BOT->rightsteps --;
     }
 
+    if(center == horizontalMovementDirRight){
+        BOT->centersteps ++;
+    }else if(center == horizontalMovementDirLeft){
+        BOT->centersteps --;
+    }
+
+    BOT->center  = BOT->centersteps * MOVEMENT_STEP;
+
 }
 
 void Model_createInstance(){
@@ -96,6 +104,7 @@ void Model_createInstance(){
     BOT->currentLocation = Point_allocWithSteps(0 ,0);
     BOT->leftsteps = BOT->home->left_steps;
     BOT->rightsteps = BOT->home->right_steps;
+    BOT->centersteps = 0;
     BOT->retainCount = 1;
     BOT->center = 0.0;
     BOT->delay = Config_maxDelay();
@@ -115,8 +124,8 @@ void Model_setPenMode(PenMode mode){
 
 void Model_logState(){
     printf("##############################################\n");
-    printf("# MACHINE STATE leftsteps %i rightsteps %i \n",BOT->leftsteps,BOT->rightsteps);
-    printf("# current location x:%f y:%f \n",BOT->currentLocation->x,BOT->currentLocation->y);
+    printf("# MACHINE STATE leftsteps %i rightsteps %i centersteps %i\n", BOT->leftsteps, BOT->rightsteps, BOT->centersteps);
+    printf("# current location x:%f y:%f center:%f\n", BOT->currentLocation->x, BOT->currentLocation->y, BOT->center);
     printf("##############################################\n");
 }
 
@@ -172,7 +181,7 @@ void Model_generateSteps(Point *to){
         stepperdir_right = stepperMotorDirNone;
     }
 
-    Step *step = Step_alloc(stepperMotorDirNone, stepperMotorDirNone);
+    Step *step = Step_alloc(stepperMotorDirNone, stepperMotorDirNone, horizontalMovementDirNone);
 
 //    printf("INPUT largest %i smallest %i\n\n",largest,smallest);
 
@@ -223,12 +232,12 @@ void Model_generateSteps(Point *to){
         largestcount ++;
 
         if(abs(delta_steps_left) > abs(delta_steps_right)){
-            Step_update(step,stepperdir_left,skipper);
+            Step_update(step,stepperdir_left,skipper, horizontalMovementDirRight);
         }else{
-            Step_update(step,skipper,stepperdir_right);
+            Step_update(step,skipper,stepperdir_right, horizontalMovementDirRight);
         }
 
-        Model_addStep(step->leftengine,step->rightengine);
+        Model_addStep(step->leftengine, step->rightengine, step->horengine);
 
         BOT->executeStepCallback(step);
 
@@ -282,16 +291,11 @@ void Model_finish(){
     SpeedManager_finish(sm);
 }
 
-float fakeCenter = 0.0;
-
 void SpeedManager_callback(float x, float y, int delay, int cursor, int penMode){
     //printf("callback x %f y %f delay %i \n",x,y,delay);
-    
-    fakeCenter += 0.60;
-    Model_setCenter(fakeCenter);    
     BOT->penMode = penMode;
     BOT->delay = delay;
-    Point_updateWithXY(Model_toPoint,x,y);
+    Point_updateWithXY(Model_toPoint, x, y);
     Model_generateSteps(Model_toPoint);
 }
 
@@ -299,7 +303,7 @@ void Model_moveHome(){
     printf("homing...\n");
     //Model_moveTo(BOT->home);
     Model_computeSegments(BOT->home->x, BOT->home->y);
-    Point_updateWithXY(BOT->currentLocation,BOT->home->x,BOT->home->y);
+    Point_updateWithXY(BOT->currentLocation, BOT->home->x, BOT->home->y);
 }
 
 void Model_moveTo(float x, float y){

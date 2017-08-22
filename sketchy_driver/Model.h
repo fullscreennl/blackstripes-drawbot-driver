@@ -27,6 +27,7 @@ typedef struct FSBotState{
     Point *home;
     Point *currentLocation;
     SpeedManager *speedManager;
+    int centersteps;
     int leftsteps;
     int rightsteps;
     int delay;
@@ -39,7 +40,7 @@ BotState *BOT;
 
 void SpeedManager_callback(float x, float y, int delay, int cursor,int penMode);
 void Model_createInstance();
-void Model_addStep(int left, int right);
+void Model_addStep(int left, int right, int center);
 void Model_logState();
 void Model_release();
 void Model_retain();
