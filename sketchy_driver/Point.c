@@ -23,15 +23,9 @@ float Point_trimAngle(float inputAngle){
 
 float Point_needsPositionUpdateWith(float x, float y){
     if(x > BOT->center + BOT_REPOSITION_THRESHOLD){
-        printf("move right %f target %f %f center : %f - ", BOT_REPOSITION_THRESHOLD, x, y, BOT->center);
-        log_time();
-        return BOT_REPOSITION_THRESHOLD;
-        //return x - BOT->center;
+        return x;
     }else if(x < BOT->center - BOT_REPOSITION_THRESHOLD){
-        printf("move left %f target %f %f center : %f - ", BOT_REPOSITION_THRESHOLD, x, y, BOT->center);
-        log_time();
-        return -BOT_REPOSITION_THRESHOLD;
-        //return x - BOT->center;
+        return x;
     }
     return 0.0;
 }

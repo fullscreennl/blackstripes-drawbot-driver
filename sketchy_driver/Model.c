@@ -52,21 +52,14 @@ void log_time(){
 
 }
 
-
 int Model_getCenter(){
     return BOT->center;
 }
 
 void Model_setCenter(float newCenter){
-    int incr = 1;
-    if (BOT->center > newCenter){
-        incr = -1;
-    }
+    float diff = newCenter - BOT->center;
     BOT->center = newCenter;
-
-    Point_updateWithXY(BOT->currentLocation,
-                       BOT->currentLocation->x + incr,
-                       BOT->currentLocation->y);
+    BOT->currentLocation->x += diff;
 }
 
 int Model_getLeftShoulderX(){
@@ -252,14 +245,14 @@ void Model_generateSteps(Point *to){
 
 }
 
-bool willDrawForLevelAtPoint(Point *point){
+bool willDrawForLevelAtPoint(){
     return (BOT->scheduledPenMode == penModeManualDown);
 }
 
-void Model_computeSegments(Point *dest){
+void Model_computeSegments(float _x, float _y){
 
-    float deltaX = BOT->currentLocation->x - dest->x;
-    float deltaY = BOT->currentLocation->y - dest->y;
+    float deltaX = BOT->currentLocation->x - _x;
+    float deltaY = BOT->currentLocation->y - _y;
 
     float length = sqrt(deltaX*deltaX + deltaY*deltaY);
 
@@ -276,41 +269,12 @@ void Model_computeSegments(Point *dest){
     for (i=0; i < numsteps-1; i++){
         x = x - xstep;
         y = y - ystep;
-
-        float position_update = Point_needsPositionUpdateWith(x, y);
-        if(position_update > 0){
-            while(position_update --){
-                Model_setCenter(BOT->center + 1);
-                //Model_moveTo(BOT->currentLocation);
-                Point *p = Point_allocWithXY(x,y);
-                //Point_log(p);
-                bool willDraw = willDrawForLevelAtPoint(p);
-                Point_release(p);
-                SpeedManager_append(sm,x,y,BOT->scheduledPenMode,willDraw);
-            }
-        }else if(position_update < 0){
-            while(0 > position_update ++){
-                Model_setCenter(BOT->center - 1);
-                //Model_moveTo(BOT->currentLocation);
-                Point *p = Point_allocWithXY(x,y);
-                //Point_log(p);
-                bool willDraw = willDrawForLevelAtPoint(p);
-                Point_release(p);
-                SpeedManager_append(sm,x,y,BOT->scheduledPenMode,willDraw);
-            }
-        }
-
-        Point *p = Point_allocWithXY(x,y);
-        //Point_log(p);
-        bool willDraw = willDrawForLevelAtPoint(p);
-        Point_release(p);
+        bool willDraw = willDrawForLevelAtPoint();
         SpeedManager_append(sm,x,y,BOT->scheduledPenMode,willDraw);
     }
 
-    Point *p = Point_allocWithXY(dest->x,dest->y);
-    bool willDraw = willDrawForLevelAtPoint(p);
-    SpeedManager_append(sm,dest->x,dest->y,BOT->scheduledPenMode,willDraw);
-    Point_release(p);
+    bool willDraw = willDrawForLevelAtPoint();
+    SpeedManager_append(sm,_x,_y,BOT->scheduledPenMode,willDraw);
 
 }
 
@@ -318,8 +282,13 @@ void Model_finish(){
     SpeedManager_finish(sm);
 }
 
-void SpeedManager_callback(float x, float y, int delay,int cursor,int penMode){
+float fakeCenter = 0.0;
+
+void SpeedManager_callback(float x, float y, int delay, int cursor, int penMode){
     //printf("callback x %f y %f delay %i \n",x,y,delay);
+    
+    fakeCenter += 0.60;
+    Model_setCenter(fakeCenter);    
     BOT->penMode = penMode;
     BOT->delay = delay;
     Point_updateWithXY(Model_toPoint,x,y);
@@ -329,19 +298,19 @@ void SpeedManager_callback(float x, float y, int delay,int cursor,int penMode){
 void Model_moveHome(){
     printf("homing...\n");
     //Model_moveTo(BOT->home);
-    Model_computeSegments(BOT->home);
+    Model_computeSegments(BOT->home->x, BOT->home->y);
     Point_updateWithXY(BOT->currentLocation,BOT->home->x,BOT->home->y);
 }
 
-void Model_moveTo(Point *dest){
+void Model_moveTo(float x, float y){
 
     int w = Config_getCanvasWidth();
     int h = Config_getCanvasHeight();
 
-    Point_updateWithXY(dest, dest->x, dest->y + (MAX_CANVAS_SIZE_Y/2.0 - h/2.0));
+    //Point_updateWithXY(dest, dest->x, dest->y + (MAX_CANVAS_SIZE_Y/2.0 - h/2.0));
 
-    Model_computeSegments(dest);
-    Point_updateWithXY(BOT->currentLocation,dest->x,dest->y);
+    Model_computeSegments(x,y);
+    Point_updateWithXY(BOT->currentLocation,x,y);
 }
 
 void Model_setExecuteStepCallback(void (*executeStepCallback)(Step *step)){

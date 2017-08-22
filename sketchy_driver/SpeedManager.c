@@ -128,7 +128,7 @@ void SpeedManager_compute(SpeedManager *sm){
 }
 
 void SpeedManager_append(SpeedManager *sm, float x, float y, int penMode, int solenoidState){
-
+    
     float dir = atan2(sm->currentY - y, sm->currentX - x);
 
     PathSegment *seg = (PathSegment *) malloc(sizeof(PathSegment));

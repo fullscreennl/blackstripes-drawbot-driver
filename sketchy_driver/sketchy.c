@@ -118,7 +118,6 @@ void watch(){
 
 void executeStep(Step *step){
 
-    Point *p = Point_allocWithSteps(BOT->leftsteps,BOT->rightsteps);
     bool shouldDraw = (BOT->penMode == penModeManualDown);
 
 #ifdef __PI__
@@ -194,6 +193,7 @@ void executeStep(Step *step){
 
 #else
 
+    Point *p = Point_allocWithSteps(BOT->leftsteps,BOT->rightsteps);
     int x = floor(p->x);
     int y = floor(p->y);
     Preview_setPixel(PREVIEW, x , y, BOT->delay, shouldDraw);

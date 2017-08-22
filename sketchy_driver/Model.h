@@ -43,7 +43,7 @@ void Model_addStep(int left, int right);
 void Model_logState();
 void Model_release();
 void Model_retain();
-void Model_moveTo(Point *dest);
+void Model_moveTo(float x, float y);
 void Model_moveHome();
 void Model_setExecuteStepCallback(void (*executeStepCallback)(Step *step));
 void Model_setPenMode(PenMode mode);

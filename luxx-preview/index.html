@@ -108,7 +108,9 @@
         return {x: xi, y: yi};
     }
 
-    function update(offset, left, right, draw){
+    function update(_offset, left, right, draw){
+
+        var offset = _offset / 10.0;
 
         leftEngine.attr('cx', LEFT_SHOULDER + offset);
         rightEngine.attr('cx', RIGHT_SHOULDER + offset);
