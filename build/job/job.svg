@@ -12,9 +12,12 @@
 
     <g transform="scale(1.000000)">
         <rect x="0" y="500" width="150" height="150" style="fill:none;stroke-width:5;stroke:rgb(0,0,0)" />
+        <ellipse cx="5000" cy="500" rx="2000" ry="400" style="fill:none;stroke-width:5;stroke:rgb(0,0,0)" />
         <rect x="200" y="500" width="150" height="150" style="fill:none;stroke-width:5;stroke:rgb(0,0,0)" />
         <rect x="400" y="500" width="150" height="150" style="fill:none;stroke-width:5;stroke:rgb(0,0,0)" />
+        <circle cx="3000" cy="1000" r="500" stroke="black" stroke-width="5" fill="none" />
         <rect x="6000" y="500" width="150" height="150" style="fill:none;stroke-width:5;stroke:rgb(0,0,0)" />
+        <circle cx="8000" cy="600" r="700" stroke="black" stroke-width="5" fill="none" />
     </g>
 
 </svg>

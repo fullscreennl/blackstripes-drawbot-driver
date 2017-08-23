@@ -231,10 +231,17 @@ void Model_generateSteps(Point *to){
 
         largestcount ++;
 
+        HorizontalMovementDir d = horizontalMovementDirNone;
+        if(to->x > BOT->center + BOT_REPOSITION_THRESHOLD){
+            d = horizontalMovementDirRight;
+        }else if(to->x < BOT->center - BOT_REPOSITION_THRESHOLD){
+            d = horizontalMovementDirLeft;
+        }
+
         if(abs(delta_steps_left) > abs(delta_steps_right)){
-            Step_update(step,stepperdir_left,skipper, horizontalMovementDirRight);
+            Step_update(step, stepperdir_left, skipper, d);
         }else{
-            Step_update(step,skipper,stepperdir_right, horizontalMovementDirRight);
+            Step_update(step, skipper, stepperdir_right, d);
         }
 
         Model_addStep(step->leftengine, step->rightengine, step->horengine);
