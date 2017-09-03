@@ -202,7 +202,7 @@ void executeStep(Step *step){
         fprintf (fp, "%f, %f, %f, %i, \n", p->left_angle, p->right_angle, BOT->center, shouldDraw);
     }
     stepCounter ++;
-    if(stepCounter%10000 == 0){
+    if(stepCounter%1000000 == 0){
         fflush(fp);
         Preview_save(PREVIEW);
         Preview_save(PREVIEW_PEN_MOVE);
