@@ -57,7 +57,9 @@ int Model_getCenter(){
 }
 
 void Model_setCenter(float newCenter){
+    //float delta = newCenter - BOT->currentCenter;
     BOT->currentCenter = newCenter;
+    //BOT->currentLocation->x += delta;
 }
 
 int Model_getLeftShoulderX(){
@@ -92,7 +94,7 @@ void Model_addStep(int left, int right, int center){
         BOT->centersteps --;
     }
 
-    BOT->currentCenter = BOT->centersteps * MOVEMENT_STEP;
+    //BOT->currentCenter = BOT->centersteps * MOVEMENT_STEP;
 
 }
 
@@ -186,17 +188,23 @@ void Model_generateSteps(Point *to, float center){
     }else{
         stepperdir_right = stepperMotorDirNone;
     }
-    
+ 
     if(delta_steps_center < 0){
         stepperdir_center = horizontalMovementDirLeft;
     }else if(delta_steps_center > 0){
         stepperdir_center = horizontalMovementDirRight;
-	printf("go right \n");
     }else{
         stepperdir_center = horizontalMovementDirNone;
     }
 
     Step *step = Step_alloc(stepperMotorDirNone, stepperMotorDirNone, horizontalMovementDirNone);
+
+    int i = 0;
+    for (i = 0; i < abs(delta_steps_center); i++){
+        Step_update(step, stepperMotorDirNone, stepperMotorDirNone, stepperdir_center);
+        Model_addStep(step->leftengine, step->rightengine, step->horengine);
+        BOT->executeStepCallback(step);
+    }
 
 //    printf("INPUT largest %i smallest %i\n\n",largest,smallest);
 
@@ -221,7 +229,7 @@ void Model_generateSteps(Point *to, float center){
         skipperValue = stepperdir_left;
     }
 
-    int i = 0;
+    //int i = 0;
     for(i = 0; i< largest; i++){
 
         StepperMotorDir skipper;
@@ -253,19 +261,13 @@ void Model_generateSteps(Point *to, float center){
         }else{
             Step_update(step, skipper, stepperdir_right, d);
         }
-	
+
         Model_addStep(step->leftengine, step->rightengine, step->horengine);
-        
-	BOT->executeStepCallback(step);
+
+        BOT->executeStepCallback(step);
 
     }
 
-    for (i = 0; i < abs(delta_steps_center); i++){
-        HorizontalMovementDir d = horizontalMovementDirNone;
-        Step_update(step, stepperMotorDirNone, stepperMotorDirNone, stepperdir_center);
-        Model_addStep(step->leftengine, step->rightengine, step->horengine);
-	BOT->executeStepCallback(step);
-    }
 
 //    if(switchmode){
 //        printf("skip %i largest %i smallest %i\n\n",skip,largestcount,largest-insertcount);
@@ -305,7 +307,7 @@ void Model_computeSegments(float _x, float _y, float _c){
     for (i=0; i < numsteps-1; i++){
         x = x - xstep;
         y = y - ystep;
-	c = c - cstep;
+        c = c - cstep;
         bool willDraw = willDrawForLevelAtPoint();
         SpeedManager_append(sm,x,y,c,BOT->scheduledPenMode,willDraw);
     }
