@@ -10,6 +10,7 @@ typedef struct PathSegment
     struct PathSegment *next;
     float x;
     float y;
+    float c;
     int penMode;
     int solenoidState;
 }PathSegment;
@@ -26,7 +27,7 @@ typedef struct SpeedManager{
     float currentDirection;
     float currentX;
     float currentY;
-    void (*executeCallback)(float x, float y, int delay,int cursor,int penMode);
+    void (*executeCallback)(float x, float y, float c, int delay,int cursor,int penMode);
     int delay;
     int targetDelay;
     int delayStep;
@@ -38,8 +39,8 @@ typedef struct SpeedManager{
 }SpeedManager;
 
 SpeedManager *SpeedManager_alloc();
-void SpeedManager_append(SpeedManager *sm,float x,float y,int penMode,int solenoidState);
-void SpeedManager_setCallback(SpeedManager *sm,void (*executeCallback)(float x,float y, int delay,int cursor,int penMode));
+void SpeedManager_append(SpeedManager *sm,float x,float y, float c, int penMode,int solenoidState);
+void SpeedManager_setCallback(SpeedManager *sm,void (*executeCallback)(float x, float y, float c, int delay, int cursor, int penMode));
 void SpeedManager_resume(SpeedManager *sm);
 void SpeedManager_finish(SpeedManager *sm);
 void SpeedManager_release(SpeedManager *sm);

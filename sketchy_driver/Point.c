@@ -22,12 +22,12 @@ float Point_trimAngle(float inputAngle){
 }
 
 float Point_needsPositionUpdateWith(float x, float y){
-    if(x > BOT->center + BOT_REPOSITION_THRESHOLD){
+    if(x > BOT->currentCenter + BOT_REPOSITION_THRESHOLD){
         return x;
-    }else if(x < BOT->center - BOT_REPOSITION_THRESHOLD){
+    }else if(x < BOT->currentCenter - BOT_REPOSITION_THRESHOLD){
         return x;
     }
-    return 0.0;
+    return BOT->currentCenter;
 }
 
 FSArray *Point_findCircleCircleIntersections(float cx0, float cy0,float radius0,float cx1,float cy1,float radius1){

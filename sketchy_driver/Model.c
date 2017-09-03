@@ -53,21 +53,19 @@ void log_time(){
 }
 
 int Model_getCenter(){
-    return BOT->center;
+    return BOT->currentCenter;
 }
 
 void Model_setCenter(float newCenter){
-    float diff = newCenter - BOT->center;
-    BOT->center = newCenter;
-    BOT->currentLocation->x += diff;
+    BOT->currentCenter = newCenter;
 }
 
 int Model_getLeftShoulderX(){
-    return BOT->center + LEFT_SHOULDER_OFFSET;
+    return BOT->currentCenter + LEFT_SHOULDER_OFFSET;
 }
 
 int Model_getRightShoulderX(){
-    return BOT->center + RIGHT_SHOULDER_OFFSET;
+    return BOT->currentCenter + RIGHT_SHOULDER_OFFSET;
 }
 
 void Model_resume(){
@@ -94,7 +92,7 @@ void Model_addStep(int left, int right, int center){
         BOT->centersteps --;
     }
 
-    BOT->center  = BOT->centersteps * MOVEMENT_STEP;
+    BOT->currentCenter = BOT->centersteps * MOVEMENT_STEP;
 
 }
 
@@ -102,6 +100,7 @@ void Model_createInstance(){
     BOT = (BotState *) malloc(sizeof(BotState));
     BOT->home = Point_allocWithSteps(0 ,0);
     BOT->currentLocation = Point_allocWithSteps(0 ,0);
+    BOT->currentCenter = 0.0;
     BOT->leftsteps = BOT->home->left_steps;
     BOT->rightsteps = BOT->home->right_steps;
     BOT->centersteps = 0;
@@ -150,20 +149,27 @@ void Model_retain(){
     FSObject_retain(BOT);
 }
 
-void Model_generateSteps(Point *to){
+void Model_generateSteps(Point *to, float center){
 
     //Point_log(to);
 
+
+    int delta_steps_center = (int)round(center / MOVEMENT_STEP) - BOT->centersteps;
+    printf("delta center %i %i \n", delta_steps_center, BOT->centersteps);
     int delta_steps_left = to->left_steps - BOT->leftsteps;
     int delta_steps_right = to->right_steps - BOT->rightsteps;
 
     int largest = MAX(abs(delta_steps_left),abs(delta_steps_right));
-    int smallest = MIN(abs(delta_steps_left),abs(delta_steps_right));
+    //largest = MAX(largest, abs(delta_steps_center));
 
-    //printf("LEFT %i RIGHT %i MAX %i \n\n",delta_steps_left,delta_steps_right,largest);
+    int smallest = MIN(abs(delta_steps_left),abs(delta_steps_right));
+    //smallest = MIN(smallest,abs(delta_steps_center));
+
+    printf("LEFT %i RIGHT %i CENTER %i MAX %i \n\n", delta_steps_left, delta_steps_right, delta_steps_center, largest);
 
     StepperMotorDir stepperdir_left = stepperMotorDirNone;
     StepperMotorDir stepperdir_right = stepperMotorDirNone;
+    HorizontalMovementDir stepperdir_center = horizontalMovementDirNone;
 
     if(delta_steps_left < 0){
         stepperdir_left = stepperMotorDirDown;
@@ -179,6 +185,15 @@ void Model_generateSteps(Point *to){
         stepperdir_right = stepperMotorDirUp;
     }else{
         stepperdir_right = stepperMotorDirNone;
+    }
+    
+    if(delta_steps_center < 0){
+        stepperdir_center = horizontalMovementDirLeft;
+    }else if(delta_steps_center > 0){
+        stepperdir_center = horizontalMovementDirRight;
+	printf("go right \n");
+    }else{
+        stepperdir_center = horizontalMovementDirNone;
     }
 
     Step *step = Step_alloc(stepperMotorDirNone, stepperMotorDirNone, horizontalMovementDirNone);
@@ -232,22 +247,24 @@ void Model_generateSteps(Point *to){
         largestcount ++;
 
         HorizontalMovementDir d = horizontalMovementDirNone;
-        if(to->x > BOT->center + BOT_REPOSITION_THRESHOLD){
-            d = horizontalMovementDirRight;
-        }else if(to->x < BOT->center - BOT_REPOSITION_THRESHOLD){
-            d = horizontalMovementDirLeft;
-        }
 
         if(abs(delta_steps_left) > abs(delta_steps_right)){
             Step_update(step, stepperdir_left, skipper, d);
         }else{
             Step_update(step, skipper, stepperdir_right, d);
         }
-
+	
         Model_addStep(step->leftengine, step->rightengine, step->horengine);
+        
+	BOT->executeStepCallback(step);
 
-        BOT->executeStepCallback(step);
+    }
 
+    for (i = 0; i < abs(delta_steps_center); i++){
+        HorizontalMovementDir d = horizontalMovementDirNone;
+        Step_update(step, stepperMotorDirNone, stepperMotorDirNone, stepperdir_center);
+        Model_addStep(step->leftengine, step->rightengine, step->horengine);
+	BOT->executeStepCallback(step);
     }
 
 //    if(switchmode){
@@ -265,10 +282,11 @@ bool willDrawForLevelAtPoint(){
     return (BOT->scheduledPenMode == penModeManualDown);
 }
 
-void Model_computeSegments(float _x, float _y){
+void Model_computeSegments(float _x, float _y, float _c){
 
     float deltaX = BOT->currentLocation->x - _x;
     float deltaY = BOT->currentLocation->y - _y;
+    float deltaC = BOT->currentCenter - _c;
 
     float length = sqrt(deltaX*deltaX + deltaY*deltaY);
 
@@ -277,20 +295,23 @@ void Model_computeSegments(float _x, float _y){
 
     float xstep = deltaX/numspaces;
     float ystep = deltaY/numspaces;
+    float cstep = deltaC/numspaces;
 
     float x = BOT->currentLocation->x;
     float y = BOT->currentLocation->y;
+    float c = BOT->currentCenter;
 
     int i=0;
     for (i=0; i < numsteps-1; i++){
         x = x - xstep;
         y = y - ystep;
+	c = c - cstep;
         bool willDraw = willDrawForLevelAtPoint();
-        SpeedManager_append(sm,x,y,BOT->scheduledPenMode,willDraw);
+        SpeedManager_append(sm,x,y,c,BOT->scheduledPenMode,willDraw);
     }
 
     bool willDraw = willDrawForLevelAtPoint();
-    SpeedManager_append(sm,_x,_y,BOT->scheduledPenMode,willDraw);
+    SpeedManager_append(sm,_x,_y,_c,BOT->scheduledPenMode,willDraw);
 
 }
 
@@ -298,29 +319,29 @@ void Model_finish(){
     SpeedManager_finish(sm);
 }
 
-void SpeedManager_callback(float x, float y, int delay, int cursor, int penMode){
-    //printf("callback x %f y %f delay %i \n",x,y,delay);
+void SpeedManager_callback(float x, float y, float c, int delay, int cursor, int penMode){
+    //printf("callback x %f y %f c %f delay %i \n",x,y,c,delay);
     BOT->penMode = penMode;
     BOT->delay = delay;
+    Model_setCenter(c);
     Point_updateWithXY(Model_toPoint, x, y);
-    Model_generateSteps(Model_toPoint);
+    Model_generateSteps(Model_toPoint, c);
 }
 
 void Model_moveHome(){
     printf("homing...\n");
     //Model_moveTo(BOT->home);
-    Model_computeSegments(BOT->home->x, BOT->home->y);
+    Model_computeSegments(BOT->home->x, BOT->home->y, 0.0);
     Point_updateWithXY(BOT->currentLocation, BOT->home->x, BOT->home->y);
 }
 
 void Model_moveTo(float x, float y){
 
-    int w = Config_getCanvasWidth();
-    int h = Config_getCanvasHeight();
+    float c = Point_needsPositionUpdateWith(x, y);
 
-    //Point_updateWithXY(dest, dest->x, dest->y + (MAX_CANVAS_SIZE_Y/2.0 - h/2.0));
+    Model_computeSegments(x,y,c);
 
-    Model_computeSegments(x,y);
+    Model_setCenter(c);
     Point_updateWithXY(BOT->currentLocation,x,y);
 }
 

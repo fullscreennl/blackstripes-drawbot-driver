@@ -21,6 +21,7 @@ typedef enum penMode{
 }PenMode;
 
 typedef struct FSBotState{
+    float currentCenter;
     float center;
     int retainCount;
     char *type;
@@ -38,7 +39,7 @@ typedef struct FSBotState{
 
 BotState *BOT;
 
-void SpeedManager_callback(float x, float y, int delay, int cursor,int penMode);
+void SpeedManager_callback(float x, float y, float c, int delay, int cursor,int penMode);
 void Model_createInstance();
 void Model_addStep(int left, int right, int center);
 void Model_logState();

@@ -199,7 +199,7 @@ void executeStep(Step *step){
     Preview_setPixel(PREVIEW, x , y, BOT->delay, shouldDraw);
     Preview_setPixel(PREVIEW_PEN_MOVE, x , y, BOT->delay, !shouldDraw);
     if(stepCounter%100 == 0){
-        fprintf (fp, "%f, %f, %f, %i, \n", p->left_angle, p->right_angle, BOT->center, shouldDraw);
+        fprintf (fp, "%f, %f, %f, %i, \n", p->left_angle, p->right_angle, BOT->currentCenter, shouldDraw);
     }
     stepCounter ++;
     if(stepCounter%1000000 == 0){

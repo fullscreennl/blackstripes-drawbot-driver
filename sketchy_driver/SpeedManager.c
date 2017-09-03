@@ -127,7 +127,7 @@ void SpeedManager_compute(SpeedManager *sm){
     }
 }
 
-void SpeedManager_append(SpeedManager *sm, float x, float y, int penMode, int solenoidState){
+void SpeedManager_append(SpeedManager *sm, float x, float y, float c, int penMode, int solenoidState){
     
     float dir = atan2(sm->currentY - y, sm->currentX - x);
 
@@ -140,6 +140,7 @@ void SpeedManager_append(SpeedManager *sm, float x, float y, int penMode, int so
     seg->next = NULL;
     seg->x = x;
     seg->y = y;
+    seg->c = c;
     seg->penMode = penMode;
     seg->solenoidState = solenoidState;
 
@@ -173,7 +174,7 @@ void SpeedManager_append(SpeedManager *sm, float x, float y, int penMode, int so
             easeOutDelay = 0;
         }
 
-        sm->executeCallback(sm->bottom->x,sm->bottom->y,computedDelay,sm->queueLength,sm->bottom->penMode);
+        sm->executeCallback(sm->bottom->x,sm->bottom->y,sm->bottom->c,computedDelay,sm->queueLength,sm->bottom->penMode);
         PathSegment *newBottom = sm->bottom->next;
         free(sm->bottom);
         sm->bottom = newBottom;
@@ -184,7 +185,7 @@ void SpeedManager_append(SpeedManager *sm, float x, float y, int penMode, int so
 
 }
 
-void SpeedManager_setCallback(SpeedManager *sm,void (*executeCallback)(float x,float y, int delay,int cursor,int penMode)){
+void SpeedManager_setCallback(SpeedManager *sm,void (*executeCallback)(float x, float y, float c, int delay, int cursor, int penMode)){
     sm->executeCallback = executeCallback;
 }
 
@@ -207,7 +208,7 @@ void SpeedManager_reduceQueue(SpeedManager *sm){
     while(sm->queueLength > sm->length-1){
         SpeedManager_copmuteDelay(sm);
         int computedDelay = sm->delay;
-        sm->executeCallback(sm->bottom->x,sm->bottom->y,computedDelay,sm->queueLength,sm->bottom->penMode);
+        sm->executeCallback(sm->bottom->x, sm->bottom->y, sm->bottom->c, computedDelay, sm->queueLength, sm->bottom->penMode);
         PathSegment *newBottom = sm->bottom->next;
         free(sm->bottom);
         sm->bottom = newBottom;
@@ -220,7 +221,7 @@ void SpeedManager_finish(SpeedManager *sm){
     PathSegment *curr = sm->bottom;
     while(curr){
         SpeedManager_copmuteDelay(sm);
-        sm->executeCallback(curr->x,curr->y,sm->delay,sm->queueLength,curr->penMode);
+        sm->executeCallback(curr->x,curr->y,curr->c,sm->delay,sm->queueLength,curr->penMode);
         curr = curr->next;
     }
 
