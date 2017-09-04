@@ -155,19 +155,12 @@ void Model_generateSteps(Point *to, float center){
 
     //Point_log(to);
 
-
     int delta_steps_center = (int)round(center / MOVEMENT_STEP) - BOT->centersteps;
-    printf("delta center %i %i \n", delta_steps_center, BOT->centersteps);
     int delta_steps_left = to->left_steps - BOT->leftsteps;
     int delta_steps_right = to->right_steps - BOT->rightsteps;
 
     int largest = MAX(abs(delta_steps_left),abs(delta_steps_right));
-    //largest = MAX(largest, abs(delta_steps_center));
-
-    int smallest = MIN(abs(delta_steps_left),abs(delta_steps_right));
-    //smallest = MIN(smallest,abs(delta_steps_center));
-
-    printf("LEFT %i RIGHT %i CENTER %i MAX %i \n\n", delta_steps_left, delta_steps_right, delta_steps_center, largest);
+    largest = MAX(largest, abs(delta_steps_center));
 
     StepperMotorDir stepperdir_left = stepperMotorDirNone;
     StepperMotorDir stepperdir_right = stepperMotorDirNone;
@@ -197,8 +190,37 @@ void Model_generateSteps(Point *to, float center){
         stepperdir_center = horizontalMovementDirNone;
     }
 
+    int leftSkips = largest - abs(delta_steps_left);
+    int rightSkips = largest - abs(delta_steps_right);
+    int centerSkips = largest - abs(delta_steps_center);
+
+    printf("LEFT %i RIGHT %i CENTER %i MAX %i \n", delta_steps_left, delta_steps_right, delta_steps_center, largest);
+    printf(" %i %i %i \n\n",leftSkips, rightSkips, centerSkips);
+
     Step *step = Step_alloc(stepperMotorDirNone, stepperMotorDirNone, horizontalMovementDirNone);
 
+    int i = 0;
+    for(i = 0; i < largest; i++){
+        StepperMotorDir l = stepperMotorDirNone;
+        StepperMotorDir r = stepperMotorDirNone;
+        HorizontalMovementDir c = horizontalMovementDirNone;
+        if(i >= leftSkips){
+            l = stepperdir_left;
+            printf("left %i ",l);
+        }
+        if(i >= rightSkips){
+            r = stepperdir_right;
+        }
+        if(i >= centerSkips){
+            c = stepperdir_center;
+        }
+        Step_update(step, l, r, c);
+        //printf("%i %i %i\n",l,r,c);
+        Model_addStep(step->leftengine, step->rightengine, step->horengine);
+        BOT->executeStepCallback(step);
+    }
+
+    /**
     int i = 0;
     for (i = 0; i < abs(delta_steps_center); i++){
         Step_update(step, stepperMotorDirNone, stepperMotorDirNone, stepperdir_center);
@@ -275,7 +297,7 @@ void Model_generateSteps(Point *to, float center){
 //        printf("skip %i largest %i smallest %i\n\n",skip,largestcount,insertcount);
 //    }
 
-
+    */
     Step_release(step);
 
 }
