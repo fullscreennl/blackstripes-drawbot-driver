@@ -194,8 +194,8 @@ void Model_generateSteps(Point *to, float center){
     int rightSkips = largest - abs(delta_steps_right);
     int centerSkips = largest - abs(delta_steps_center);
 
-    printf("LEFT %i RIGHT %i CENTER %i MAX %i \n", delta_steps_left, delta_steps_right, delta_steps_center, largest);
-    printf(" %i %i %i \n\n",leftSkips, rightSkips, centerSkips);
+    //printf("LEFT %i RIGHT %i CENTER %i MAX %i \n", delta_steps_left, delta_steps_right, delta_steps_center, largest);
+    //printf(" %i %i %i \n\n",leftSkips, rightSkips, centerSkips);
 
     Step *step = Step_alloc(stepperMotorDirNone, stepperMotorDirNone, horizontalMovementDirNone);
 
@@ -206,7 +206,6 @@ void Model_generateSteps(Point *to, float center){
         HorizontalMovementDir c = horizontalMovementDirNone;
         if(i >= leftSkips){
             l = stepperdir_left;
-            printf("left %i ",l);
         }
         if(i >= rightSkips){
             r = stepperdir_right;
@@ -312,6 +311,10 @@ void Model_computeSegments(float _x, float _y, float _c){
     float deltaY = BOT->currentLocation->y - _y;
     float deltaC = BOT->currentCenter - _c;
 
+    if(abs(deltaC) > abs(deltaX)){
+        //deltaC = deltaX/2.0;
+    }
+
     float length = sqrt(deltaX*deltaX + deltaY*deltaY);
 
     int numsteps = round(length/LINE_SEGMENT_SIZE_MM);
@@ -347,8 +350,14 @@ void SpeedManager_callback(float x, float y, float c, int delay, int cursor, int
     //printf("callback x %f y %f c %f delay %i \n",x,y,c,delay);
     BOT->penMode = penMode;
     BOT->delay = delay;
+    //Point_updateWithXY(Model_toPoint, x, y);
+    //Point_log(Model_toPoint);
+    //printf("1) %f \n", BOT->currentCenter);
     Model_setCenter(c);
     Point_updateWithXY(Model_toPoint, x, y);
+    //Point_log(Model_toPoint);
+    //printf("2) %f \n", c);
+    //printf("- - - - -\n");
     Model_generateSteps(Model_toPoint, c);
 }
 
