@@ -4,7 +4,7 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-#define LINE_SEGMENT_SIZE_MM 0.1
+#define LINE_SEGMENT_SIZE_MM 0.5
 #define DEG 57.2957795
 
 #define MAXDELAY 900000

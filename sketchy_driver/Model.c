@@ -151,6 +151,61 @@ void Model_retain(){
     FSObject_retain(BOT);
 }
 
+/**
+ 
+ def prepare_axis(l, _max, left_skips):
+    if l == _max:
+        lmr = 1
+        lp = 0
+        lsp = 1
+        lmax = _max
+    else:
+        if left_skips > 0 and l > 0:
+            if left_skips >= l:
+                lmr = 1
+                lp = 0
+                lsp = int(_max / l)
+                lmax = l
+            else:
+                lmr = 0
+                lp = 1
+                lsp = int(_max / left_skips)
+                lmax = left_skips
+    return lmr, lp, lsp, lmax
+
+ */
+
+void Model_prepareAxis(int *lmr, int *lp, int *lsp, int *lmax, 
+                       int l, int _max, int left_skips,
+                       int value, int spacing_value) {
+    if(l == _max){
+        *lmr = value;
+        *lp = spacing_value;
+        *lsp = 1;
+        *lmax = _max;
+    }else if(l == 0){
+        *lmr = spacing_value;
+        *lp = value;
+        *lsp = 1;
+        *lmax = _max;
+    }else{
+        if(left_skips > 0 && l > 0){
+            if(left_skips >= l){
+                *lmr = value;
+                *lp = spacing_value;
+                *lsp = (int)(_max / l);
+                *lmax = l;
+            }else{
+                *lmr = spacing_value;
+                *lp = value;
+                *lsp = (int)(_max / left_skips);
+                *lmax = left_skips;
+            }
+        }
+    }
+    return;
+}
+
 void Model_generateSteps(Point *to, float center){
 
     //Point_log(to);
@@ -194,110 +249,56 @@ void Model_generateSteps(Point *to, float center){
     int rightSkips = largest - abs(delta_steps_right);
     int centerSkips = largest - abs(delta_steps_center);
 
-    //printf("LEFT %i RIGHT %i CENTER %i MAX %i \n", delta_steps_left, delta_steps_right, delta_steps_center, largest);
-    //printf(" %i %i %i \n\n",leftSkips, rightSkips, centerSkips);
+    int lmr; int lp; int lsp; int lmax;
+    Model_prepareAxis(&lmr, &lp, &lsp, &lmax, abs(delta_steps_left), largest, leftSkips, stepperdir_left, stepperMotorDirNone);
+
+    int rmr; int rp; int rsp; int rmax;
+    Model_prepareAxis(&rmr, &rp, &rsp, &rmax, abs(delta_steps_right), largest, rightSkips, stepperdir_right, stepperMotorDirNone);
+
+    int cmr; int cp; int csp; int cmax;
+    Model_prepareAxis(&cmr, &cp, &csp, &cmax, abs(delta_steps_center), largest, centerSkips, stepperdir_center, horizontalMovementDirNone);
+
+    int lc = 0; int rc = 0; int cc = 0;
 
     Step *step = Step_alloc(stepperMotorDirNone, stepperMotorDirNone, horizontalMovementDirNone);
 
     int i = 0;
     for(i = 0; i < largest; i++){
-        StepperMotorDir l = stepperMotorDirNone;
-        StepperMotorDir r = stepperMotorDirNone;
-        HorizontalMovementDir c = horizontalMovementDirNone;
-        if(i >= leftSkips){
-            l = stepperdir_left;
+
+        int _l = 0; int _r = 0; int _c = 0;
+
+        if (i%lsp == 0 && lc < lmax){
+            _l = lmr;
+        }else{
+            _l = lp;
         }
-        if(i >= rightSkips){
-            r = stepperdir_right;
+        if (i%rsp == 0 && rc < rmax){
+            _r = rmr;
+        }else{
+            _r = rp;
         }
-        if(i >= centerSkips){
-            c = stepperdir_center;
+        if (i%csp == 0 && cc < cmax){
+            _c = cmr;
+        }else{
+            _c = cp;
         }
-        Step_update(step, l, r, c);
-	printf("%i %i %i\n",l,r,c);
+
+        if (_l == stepperdir_left){
+            lc ++;
+        }
+        if (_r == stepperdir_right){
+            rc ++;
+        }
+        if (_c == stepperdir_center){
+            cc ++;
+        }
+
+        Step_update(step, _l, _r, _c);
+        printf("%i %i %i\n",_l,_r,_c);
         Model_addStep(step->leftengine, step->rightengine, step->horengine);
         BOT->executeStepCallback(step);
     }
     printf("- - - - - - \n");
-
-    /**
-    int i = 0;
-    for (i = 0; i < abs(delta_steps_center); i++){
-        Step_update(step, stepperMotorDirNone, stepperMotorDirNone, stepperdir_center);
-        Model_addStep(step->leftengine, step->rightengine, step->horengine);
-        BOT->executeStepCallback(step);
-    }
-
-//    printf("INPUT largest %i smallest %i\n\n",largest,smallest);
-
-    int switchmode = 0;
-    float factor = (float)largest / (float)smallest;
-
-    int skip = round(factor);
-
-    if(factor < 2.0 && factor > 1.0){
-        skip = round((float)largest / (float)(largest-smallest));
-        switchmode = 1;
-    }
-
-    int insertcount = 0;
-    int largestcount = 0;
-
-    StepperMotorDir skipperValue;
-
-    if(abs(delta_steps_left) > abs(delta_steps_right)){
-        skipperValue = stepperdir_right;
-    }else{
-        skipperValue = stepperdir_left;
-    }
-
-    //int i = 0;
-    for(i = 0; i< largest; i++){
-
-        StepperMotorDir skipper;
-
-        if(switchmode){
-
-            skipper = skipperValue;
-            if(i%skip == 0 && insertcount < (largest-smallest)){
-                skipper = stepperMotorDirNone;
-                insertcount ++;
-            }
-
-        }else{
-
-            skipper = stepperMotorDirNone;
-            if(i%skip == 0 && insertcount < smallest){
-                skipper = skipperValue;
-                insertcount ++;
-            }
-
-        }
-
-        largestcount ++;
-
-        HorizontalMovementDir d = horizontalMovementDirNone;
-
-        if(abs(delta_steps_left) > abs(delta_steps_right)){
-            Step_update(step, stepperdir_left, skipper, d);
-        }else{
-            Step_update(step, skipper, stepperdir_right, d);
-        }
-
-        Model_addStep(step->leftengine, step->rightengine, step->horengine);
-
-        BOT->executeStepCallback(step);
-
-    }
-
-
-//    if(switchmode){
-//        printf("skip %i largest %i smallest %i\n\n",skip,largestcount,largest-insertcount);
-//    }else{
-//        printf("skip %i largest %i smallest %i\n\n",skip,largestcount,insertcount);
-//    }
-
-    */
     Step_release(step);
 
 }

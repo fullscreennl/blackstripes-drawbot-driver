@@ -182,7 +182,7 @@ void runSVG(){
 
     Model_setPenMode(penModeManualUp);
 
-    float px = 0.1;
+    float px = 0.8;
     NSVGshape* shape;
     NSVGpath* path;
 
