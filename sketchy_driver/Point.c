@@ -21,6 +21,15 @@ float Point_trimAngle(float inputAngle){
     return inputAngle - toremove;
 }
 
+int Point_shouldPositionUpdateWith(float x, float y){
+    if(x > BOT->currentCenter + BOT_REPOSITION_THRESHOLD){
+        return 1;
+    }else if(x < BOT->currentCenter - BOT_REPOSITION_THRESHOLD){
+        return 1;
+    }
+    return 0;
+}
+
 float Point_needsPositionUpdateWith(float x, float y){
     if(x > BOT->currentCenter + BOT_REPOSITION_THRESHOLD){
         return x;

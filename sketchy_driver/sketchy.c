@@ -199,7 +199,7 @@ void executeStep(Step *step){
     Preview_setPixel(PREVIEW, x , y, BOT->delay, shouldDraw);
     Preview_setPixel(PREVIEW_PEN_MOVE, x , y, BOT->delay, !shouldDraw);
     float c = BOT->centersteps * MOVEMENT_STEP;
-    if(stepCounter%250 == 0){
+    if(stepCounter%50 == 0){
         fprintf (fp, "%f, %f, %f, %i, %i, \n", p->left_angle, p->right_angle, c, shouldDraw, BOT->delay);
     }
     stepCounter ++;

@@ -294,11 +294,11 @@ void Model_generateSteps(Point *to, float center){
         }
 
         Step_update(step, _l, _r, _c);
-        printf("%i %i %i\n",_l,_r,_c);
+        //printf("%i %i %i\n",_l,_r,_c);
         Model_addStep(step->leftengine, step->rightengine, step->horengine);
         BOT->executeStepCallback(step);
     }
-    printf("- - - - - - \n");
+    //printf("- - - - - - \n");
     Step_release(step);
 
 }
@@ -333,10 +333,16 @@ void Model_computeSegments(float _x, float _y, float _c, int headMovement){
         c = c - cstep;
         bool willDraw = willDrawForLevelAtPoint();
         int startMovement = (i == 0 && headMovement);
+        if(startMovement){
+            printf(">%i\n",startMovement);
+        }else{
+            printf("%i\n",startMovement);
+        }
         SpeedManager_append(sm,x,y,c,BOT->scheduledPenMode,willDraw, startMovement);
     }
 
     bool willDraw = willDrawForLevelAtPoint();
+    printf("##%i-\n",headMovement);
     SpeedManager_append(sm,_x,_y,_c,BOT->scheduledPenMode,willDraw, headMovement);
 
 }
@@ -364,12 +370,9 @@ void Model_moveHome(){
 void Model_moveTo(float x, float y){
 
     float c = Point_needsPositionUpdateWith(x, y);
+    int shouldUpdate = Point_shouldPositionUpdateWith(x, y);
 
-    float deltaX = BOT->currentLocation->x - x;
-    float deltaY = BOT->currentLocation->y - y;
-    float length = sqrt(deltaX*deltaX + deltaY*deltaY);
-
-    Model_computeSegments(x, y, c, x == c);
+    Model_computeSegments(x, y, c, shouldUpdate);
 
     Model_setCenter(c);
     Point_updateWithXY(BOT->currentLocation,x,y);

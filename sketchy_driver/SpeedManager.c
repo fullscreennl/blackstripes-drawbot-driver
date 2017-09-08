@@ -100,8 +100,6 @@ void SpeedManager_compute(SpeedManager *sm){
     while(curr){
         if(curr->headMovement){
             headMovementAhead = 1;
-        }else{
-            headMovementAhead = 0;
         }
         if(solenoidState != curr->solenoidState){
             penChangeAhead = 1;
@@ -121,9 +119,6 @@ void SpeedManager_compute(SpeedManager *sm){
         curr = curr->next;
     }
 
-    if(headMovementAhead){
-        printf("---- head move! ---- %i \n", headMovementAhead);
-    }
     if((penChangeAhead && sm->usePenChangeInLookAhead) || headMovementAhead){
         sm->targetDelay = Config_maxDelay();
     }else if(max != sm->max){
