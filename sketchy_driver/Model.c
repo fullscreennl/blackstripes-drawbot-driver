@@ -307,15 +307,11 @@ bool willDrawForLevelAtPoint(){
     return (BOT->scheduledPenMode == penModeManualDown);
 }
 
-void Model_computeSegments(float _x, float _y, float _c){
+void Model_computeSegments(float _x, float _y, float _c, int headMovement){
 
     float deltaX = BOT->currentLocation->x - _x;
     float deltaY = BOT->currentLocation->y - _y;
     float deltaC = BOT->currentCenter - _c;
-
-    if(abs(deltaC) > abs(deltaX)){
-        //deltaC = 0;
-    }
 
     float length = sqrt(deltaX*deltaX + deltaY*deltaY);
 
@@ -336,11 +332,12 @@ void Model_computeSegments(float _x, float _y, float _c){
         y = y - ystep;
         c = c - cstep;
         bool willDraw = willDrawForLevelAtPoint();
-        SpeedManager_append(sm,x,y,c,BOT->scheduledPenMode,willDraw);
+        int startMovement = (i == 0 && headMovement);
+        SpeedManager_append(sm,x,y,c,BOT->scheduledPenMode,willDraw, startMovement);
     }
 
     bool willDraw = willDrawForLevelAtPoint();
-    SpeedManager_append(sm,_x,_y,_c,BOT->scheduledPenMode,willDraw);
+    SpeedManager_append(sm,_x,_y,_c,BOT->scheduledPenMode,willDraw, headMovement);
 
 }
 
@@ -360,19 +357,19 @@ void SpeedManager_callback(float x, float y, float c, int delay, int cursor, int
 void Model_moveHome(){
     printf("homing...\n");
     //Model_moveTo(BOT->home);
-    Model_computeSegments(BOT->home->x, BOT->home->y, 0.0);
+    Model_computeSegments(BOT->home->x, BOT->home->y, 0.0, 1);
     Point_updateWithXY(BOT->currentLocation, BOT->home->x, BOT->home->y);
 }
 
 void Model_moveTo(float x, float y){
 
     float c = Point_needsPositionUpdateWith(x, y);
-    
+
     float deltaX = BOT->currentLocation->x - x;
     float deltaY = BOT->currentLocation->y - y;
     float length = sqrt(deltaX*deltaX + deltaY*deltaY);
 
-    Model_computeSegments(x,y,c);
+    Model_computeSegments(x, y, c, x == c);
 
     Model_setCenter(c);
     Point_updateWithXY(BOT->currentLocation,x,y);

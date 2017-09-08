@@ -5,6 +5,7 @@
     <script type="text/javascript" src="../build/movement.js"></script>
   </head>
   <body>
+    <div id='speed'>0</div>
   </body>
   <script type='text/javascript'>
 
@@ -159,9 +160,10 @@
 
     var i = 0;
     setInterval(function(){
-      if(i+2 < DATA.length){ 
+      if(i+5 < DATA.length){ 
         update(DATA[i+2], DATA[i], -DATA[i+1]-180, DATA[i+3]);
-        i += 4;
+        document.getElementById("speed").innerHTML = DATA[i+4];
+        i += 5;
       }else{
         return;
       }

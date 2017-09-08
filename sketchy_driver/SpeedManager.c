@@ -94,9 +94,15 @@ void SpeedManager_compute(SpeedManager *sm){
     int penChangeAhead = 0;
     int penUpAhead = 0;
     int penDownAhead = 0;
+    int headMovementAhead = 0;
     int solenoidState = curr->solenoidState;
 
     while(curr){
+        if(curr->headMovement){
+            headMovementAhead = 1;
+        }else{
+            headMovementAhead = 0;
+        }
         if(solenoidState != curr->solenoidState){
             penChangeAhead = 1;
             if(solenoidState == 0){
@@ -115,7 +121,10 @@ void SpeedManager_compute(SpeedManager *sm){
         curr = curr->next;
     }
 
-    if(penChangeAhead && sm->usePenChangeInLookAhead){
+    if(headMovementAhead){
+        printf("---- head move! ---- %i \n", headMovementAhead);
+    }
+    if((penChangeAhead && sm->usePenChangeInLookAhead) || headMovementAhead){
         sm->targetDelay = Config_maxDelay();
     }else if(max != sm->max){
         sm->max = max;
@@ -127,8 +136,8 @@ void SpeedManager_compute(SpeedManager *sm){
     }
 }
 
-void SpeedManager_append(SpeedManager *sm, float x, float y, float c, int penMode, int solenoidState){
-    
+void SpeedManager_append(SpeedManager *sm, float x, float y, float c, int penMode, int solenoidState, int headMovement){
+
     float dir = atan2(sm->currentY - y, sm->currentX - x);
 
     PathSegment *seg = (PathSegment *) malloc(sizeof(PathSegment));
@@ -141,6 +150,7 @@ void SpeedManager_append(SpeedManager *sm, float x, float y, float c, int penMod
     seg->x = x;
     seg->y = y;
     seg->c = c;
+    seg->headMovement = headMovement;
     seg->penMode = penMode;
     seg->solenoidState = solenoidState;
 
