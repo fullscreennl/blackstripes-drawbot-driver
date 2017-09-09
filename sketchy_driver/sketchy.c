@@ -181,14 +181,14 @@ void executeStep(Step *step){
     }
 
     if(stepcenter != centerdir){
-    	
-	if(stepcenter == horizontalMovementDirRight){
-            bcm2835_gpio_write(CENTER_DIR, LOW);
-	}else if(stepcenter == horizontalMovementDirLeft){
-            bcm2835_gpio_write(CENTER_DIR, HIGH);
-	}
+ 
+        if(stepcenter == horizontalMovementDirRight){
+                bcm2835_gpio_write(CENTER_DIR, LOW);
+        }else if(stepcenter == horizontalMovementDirLeft){
+                bcm2835_gpio_write(CENTER_DIR, HIGH);
+        }
 
-	centerdir = stepcenter;
+        centerdir = stepcenter;
     }
 
     if(solenoidstate != solenoid){
@@ -245,10 +245,10 @@ void executeStep(Step *step){
         Preview_save(PREVIEW);
         Preview_save(PREVIEW_PEN_MOVE);
     }
+    Point_release(p);
 
 #endif
 
-    Point_release(p);
 
 }
 
