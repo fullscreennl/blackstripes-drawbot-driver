@@ -29,7 +29,7 @@ RT_TASK watchdog_task;
 
 /**
 
-    Jeroen, I guess this is for b+? pin 29 and 30?
+    Jeroen, I guess this is for b+? pin 29 and 31?
     check: https://www.raspberrypi-spy.co.uk/wp-content/uploads/2012/06/Raspberry-Pi-GPIO-Layout-Model-B-Plus-rotated-2700x900.png    
 
     from bmc2835.h:
