@@ -333,16 +333,10 @@ void Model_computeSegments(float _x, float _y, float _c, int headMovement){
         c = c - cstep;
         bool willDraw = willDrawForLevelAtPoint();
         int startMovement = (i == 0 && headMovement);
-        if(startMovement){
-            printf(">%i\n",startMovement);
-        }else{
-            printf("%i\n",startMovement);
-        }
         SpeedManager_append(sm,x,y,c,BOT->scheduledPenMode,willDraw, startMovement);
     }
 
     bool willDraw = willDrawForLevelAtPoint();
-    printf("##%i-\n",headMovement);
     SpeedManager_append(sm,_x,_y,_c,BOT->scheduledPenMode,willDraw, headMovement);
 
 }

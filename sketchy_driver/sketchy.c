@@ -31,13 +31,17 @@ RT_TASK watchdog_task;
 #define RIGHT_DIR RPI_V2_GPIO_P1_12
 #define LEFT_CLOCK RPI_V2_GPIO_P1_13
 #define LEFT_DIR RPI_V2_GPIO_P1_15
+#define CENTER_CLOCK RPI_V2_GPIO_P1_17
+#define CENTER_DIR RPI_V2_GPIO_P1_18
 #define SOLENOID RPI_V2_GPIO_P1_16
 
 StepperMotorDir stepleft = stepperMotorDirNone;
 StepperMotorDir stepright = stepperMotorDirNone;
+HorizontalMovementDir stepcenter = horizontalMovementDirNone;
 
 StepperMotorDir leftdir = stepperMotorDirNone;
 StepperMotorDir rightdir = stepperMotorDirNone;
+HorizontalMovementDir centerdir = horizontalMovementDirNone;
 
 SolenoidState solenoidstate = solenoidStateUp;
 SolenoidState solenoid = solenoidStateUp;
@@ -160,6 +164,17 @@ void executeStep(Step *step){
 
     }
 
+    if(stepcenter != centerdir){
+    	
+	if(stepcenter == horizontalMovementDirRight){
+            bcm2835_gpio_write(CENTER_DIR, LOW);
+	}else if(stepcenter == horizontalMovementDirLeft){
+            bcm2835_gpio_write(CENTER_DIR, HIGH);
+	}
+
+	centerdir = stepcenter;
+    }
+
     if(solenoidstate != solenoid){
 
         if(solenoid == solenoidStateUp){
@@ -179,6 +194,9 @@ void executeStep(Step *step){
     if (stepright != stepperMotorDirNone) {
         bcm2835_gpio_write(RIGHT_CLOCK, HIGH);
     }
+    if (stepcenter != horizontalMovementDirNone) {
+        bcm2835_gpio_write(CENTER_CLOCK, HIGH);
+    }
 
     rt_task_sleep(100);
 
@@ -187,6 +205,9 @@ void executeStep(Step *step){
     }
     if (stepright != stepperMotorDirNone) {
         bcm2835_gpio_write(RIGHT_CLOCK, LOW);
+    }
+    if (stepcenter != horizontalMovementDirNone) {
+        bcm2835_gpio_write(CENTER_CLOCK, LOW);
     }
 
     rt_task_set_periodic(&draw_task, TM_NOW, BOT->delay);
