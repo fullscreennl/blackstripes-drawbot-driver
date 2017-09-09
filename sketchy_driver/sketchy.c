@@ -27,12 +27,28 @@ RT_TASK draw_task;
 RT_TASK watchdog_task;
 #endif
 
+/**
+
+    Jeroen, I guess this is for b+? pin 29 and 30?
+    check: https://www.raspberrypi-spy.co.uk/wp-content/uploads/2012/06/Raspberry-Pi-GPIO-Layout-Model-B-Plus-rotated-2700x900.png    
+
+    from bmc2835.h:
+
+    // RPi Version 2, new plug P5
+    RPI_V2_GPIO_P5_03     = 28,  ///< Version 2, Pin P5-03
+    RPI_V2_GPIO_P5_04     = 29,  ///< Version 2, Pin P5-04
+    RPI_V2_GPIO_P5_05     = 30,  ///< Version 2, Pin P5-05
+    RPI_V2_GPIO_P5_06     = 31,  ///< Version 2, Pin P5-06
+
+*/
+
+
 #define RIGHT_CLOCK RPI_V2_GPIO_P1_11
 #define RIGHT_DIR RPI_V2_GPIO_P1_12
 #define LEFT_CLOCK RPI_V2_GPIO_P1_13
 #define LEFT_DIR RPI_V2_GPIO_P1_15
-#define CENTER_CLOCK RPI_V2_GPIO_P1_17
-#define CENTER_DIR RPI_V2_GPIO_P1_18
+#define CENTER_CLOCK RPI_V2_GPIO_P5_04
+#define CENTER_DIR RPI_V2_GPIO_P5_06
 #define SOLENOID RPI_V2_GPIO_P1_16
 
 StepperMotorDir stepleft = stepperMotorDirNone;
