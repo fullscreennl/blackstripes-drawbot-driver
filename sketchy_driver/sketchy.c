@@ -43,12 +43,12 @@ RT_TASK watchdog_task;
 */
 
 
-#define RIGHT_CLOCK RPI_V2_GPIO_P1_11
-#define RIGHT_DIR RPI_V2_GPIO_P1_12
+#define RIGHT_CLOCK RPI_V2_GPIO_P1_22 
+#define RIGHT_DIR RPI_V2_GPIO_P1_18
 #define LEFT_CLOCK RPI_V2_GPIO_P1_13
 #define LEFT_DIR RPI_V2_GPIO_P1_15
-#define CENTER_CLOCK RPI_V2_GPIO_P5_04
-#define CENTER_DIR RPI_V2_GPIO_P5_06
+#define CENTER_CLOCK RPI_V2_GPIO_P1_11 
+#define CENTER_DIR RPI_V2_GPIO_P1_12
 #define SOLENOID RPI_V2_GPIO_P1_16
 
 StepperMotorDir stepleft = stepperMotorDirNone;
@@ -146,7 +146,7 @@ void executeStep(Step *step){
 
     stepleft = step->leftengine;
     stepright = step->rightengine;
-
+    stepcenter =  step->horengine;
     if(shouldDraw){
         solenoid = solenoidStateDown;
     }else{
@@ -159,9 +159,9 @@ void executeStep(Step *step){
         //the gearboxes are mirrored to make the machine look better
         //so the direction signals have to be inverted
         if(stepleft == stepperMotorDirUp){
-            bcm2835_gpio_write(LEFT_DIR, LOW);
-        }else if(stepleft == stepperMotorDirDown){
             bcm2835_gpio_write(LEFT_DIR, HIGH);
+        }else if(stepleft == stepperMotorDirDown){
+            bcm2835_gpio_write(LEFT_DIR, LOW);
         }
 
         leftdir = stepleft;
