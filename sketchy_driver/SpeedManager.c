@@ -121,7 +121,7 @@ void SpeedManager_compute(SpeedManager *sm){
 
     if((penChangeAhead && sm->usePenChangeInLookAhead) || headMovementAhead){
         sm->targetDelay = Config_maxDelay();
-    }else if(max != sm->max){
+    }else{ //if(max != sm->max){
         sm->max = max;
         if(solenoidState == 0){
             sm->targetDelay = Config_minMoveDelay() + sm->max * sm->delayPerDegreeMove;
