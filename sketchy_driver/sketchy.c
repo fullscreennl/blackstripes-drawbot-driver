@@ -132,22 +132,22 @@ void pen_action(){
     while(1){
         rt_task_wait_period(NULL);
         bool shouldDraw = (BOT->penMode == penModeManualDown);
-	if(shouldDraw){
-	    penmove = 0;
-	}else{
-	    penmove = 1;
-	}
+        if(shouldDraw){
+            penmove = 0;
+        }else{
+            penmove = 1;
+        }
 
         int i = 0;
         if(penmovestate != penmove){
             if(penmove == 1){
-		for(i = 0; i < 100; i++){
-		   printf("%i move pen up\n",i);
-		}
+                for(i = 0; i < 100; i++){
+                   printf("%i move pen up\n",i);
+                }
             }else if(penmove == 0){
                 for(i = 0; i < 100; i++){
-		   printf("%i move pen down\n",i);
-		}
+                    printf("%i move pen down\n",i);
+                }
             }
             penmovestate = penmove;
        }
