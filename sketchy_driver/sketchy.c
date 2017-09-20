@@ -23,6 +23,7 @@
 #endif
 
 #ifdef __PI__
+RT_TASK pen_task;
 RT_TASK draw_task;
 RT_TASK watchdog_task;
 #endif
@@ -43,6 +44,8 @@ RT_TASK watchdog_task;
 */
 
 
+#define PEN_CLOCK RPI_V2_GPIO_P1_3 
+#define PEN_DIR RPI_V2_GPIO_P1_5
 #define RIGHT_CLOCK RPI_V2_GPIO_P1_22 
 #define RIGHT_DIR RPI_V2_GPIO_P1_18
 #define LEFT_CLOCK RPI_V2_GPIO_P1_13
@@ -84,6 +87,7 @@ void sketchy_suspend(){
 
 #ifdef __PI__
         rt_task_suspend(&draw_task);
+        rt_task_suspend(&pen_task);
 #else
         // on a non xenomai os this busy loop simulates rt_task_suspend
         while(1){
@@ -110,6 +114,7 @@ void sketchy_resume(){
 #ifdef __PI__
         printf("-rt_task_resume-\n");
         rt_task_resume(&draw_task);
+        rt_task_resume(&pen_task);
 #else
         printf("RESUME\n");
 #endif
@@ -118,6 +123,11 @@ void sketchy_resume(){
 }
 
 #ifdef __PI__
+
+void pen_action(){
+    printf("pen action %i \n", BOT->penMode);
+    rt_task_set_periodic(&pen_task, TM_NOW, 500000);
+}
 
 // On the raspberry PI / xenomai the watchdog rt_task
 // checks if the draw task needs to be resumed
@@ -286,6 +296,7 @@ int run(void (*executeMotion)()){
 
     bcm2835_gpio_write(SOLENOID, HIGH);
     rt_task_set_periodic(&draw_task, TM_NOW, BOT->delay);
+    rt_task_set_periodic(&pen_task, TM_NOW, 50000);
     rt_task_set_periodic(&watchdog_task, TM_NOW, 500000);
 
     /*
@@ -296,6 +307,7 @@ int run(void (*executeMotion)()){
      *            mode (FPU, start suspended, ...)
      */
     rt_task_create(&draw_task, "printerbot", 0, 99, 0);
+    rt_task_create(&pen_task, "penlift", 0, 99, 0);
     rt_task_create(&watchdog_task, "watchdog", 0, 99, 0);
     /*
      * Arguments: &task,
@@ -303,11 +315,13 @@ int run(void (*executeMotion)()){
      *            function argument
      */
     rt_task_start(&draw_task, executeMotion, NULL);
+    rt_task_start(&pen_task, &pen_action, NULL);
     rt_task_start(&watchdog_task, &watch, NULL);
 
     pause();
 
     rt_task_delete(&draw_task);
+    rt_task_delete(&pen_task);
     rt_task_delete(&watchdog_task);
 
     bcm2835_gpio_write(SOLENOID, HIGH);

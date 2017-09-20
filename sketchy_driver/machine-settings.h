@@ -23,8 +23,8 @@
 #define RIGHT_SHOULDER_POS_Y 100.0
 #define EXENSION1 72.0
 #define CANVAS_Y 330
-#define MOVEMENT_STEP ((4.71*13)/3200.0) //800 microsteps, 13 tooth sprocket, rack pitch 4.71mm
-#define ANGLE_PER_STEP (360.0/(3200.0*40.0)) //3200 microsteps, 1:50 gearbox
+#define MOVEMENT_STEP ((4.71*13)/(3200.0*4.0)) //800 microsteps, 13 tooth sprocket, rack pitch 4.71mm
+#define ANGLE_PER_STEP (360.0/(3200.0*4.0)) //3200 microsteps, 1:50 gearbox
 #define MAX_CANVAS_SIZE_X 10000.0
 #define MAX_CANVAS_SIZE_Y 2000.0
 #define BOT_REPOSITION_THRESHOLD 500.0
