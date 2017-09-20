@@ -68,6 +68,9 @@ SolenoidState solenoid = solenoidStateUp;
 int penmovestate = 1;
 int penmove = 1;
 
+int pen_y = 0;
+int pen_max_y = 400;
+
 
 #ifndef __PI__
 FILE *fp;
@@ -141,17 +144,26 @@ void pen_action(){
         int i = 0;
         if(penmovestate != penmove){
             if(penmove == 1){
-                for(i = 0; i < 100; i++){
-                   printf("%i move pen up\n",i);
-                }
-            }else if(penmove == 0){
-                for(i = 0; i < 100; i++){
-                    printf("%i move pen down\n",i);
-                }
+                bcm2835_gpio_write(PEN_DIR, HIGH);
+            }else if(penmove == 2){
+                bcm2835_gpio_write(PEN_DIR, LOW);
             }
             penmovestate = penmove;
-       }
-       rt_task_set_periodic(&pen_task, TM_NOW, 50000000);
+        }
+
+        if (pen_y < pen_max_y && pen_y > 0){
+            if(penmove == 1){
+                pen_y ++;
+            }
+            if(penmove == 2){
+                pen_y --;
+            }
+            bcm2835_gpio_write(PEN_CLOCK, HIGH);
+            rt_task_sleep(100);
+            bcm2835_gpio_write(PEN_CLOCK, LOW);
+        }
+
+        rt_task_set_periodic(&pen_task, TM_NOW, 50000);
     }
 }
 
