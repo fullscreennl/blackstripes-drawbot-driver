@@ -65,6 +65,9 @@ HorizontalMovementDir centerdir = horizontalMovementDirNone;
 SolenoidState solenoidstate = solenoidStateUp;
 SolenoidState solenoid = solenoidStateUp;
 
+int penmovestate = 1;
+int penmove = 1;
+
 
 #ifndef __PI__
 FILE *fp;
@@ -125,8 +128,31 @@ void sketchy_resume(){
 #ifdef __PI__
 
 void pen_action(){
-    printf("pen action %i \n", BOT->penMode);
-    rt_task_set_periodic(&pen_task, TM_NOW, 500000);
+    printf("pen action\n");
+    while(1){
+        rt_task_wait_period(NULL);
+        bool shouldDraw = (BOT->penMode == penModeManualDown);
+	if(shouldDraw){
+	    penmove = 0;
+	}else{
+	    penmove = 1;
+	}
+
+        int i = 0;
+        if(penmovestate != penmove){
+            if(penmove == 1){
+		for(i = 0; i < 100; i++){
+		   printf("%i move pen up\n",i);
+		}
+            }else if(penmove == 0){
+                for(i = 0; i < 100; i++){
+		   printf("%i move pen down\n",i);
+		}
+            }
+            penmovestate = penmove;
+       }
+       rt_task_set_periodic(&pen_task, TM_NOW, 50000000);
+    }
 }
 
 // On the raspberry PI / xenomai the watchdog rt_task
