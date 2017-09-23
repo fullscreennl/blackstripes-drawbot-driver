@@ -4,7 +4,8 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-#define LINE_SEGMENT_SIZE_MM 0.5
+//don't set this lower than 1 wiggles will happen on axis that are stationary
+#define LINE_SEGMENT_SIZE_MM 1.0
 #define DEG 57.2957795
 
 #define MAXDELAY 900000
