@@ -44,13 +44,13 @@ RT_TASK watchdog_task;
 */
 
 
-#define PEN_CLOCK RPI_V2_GPIO_P1_3 
-#define PEN_DIR RPI_V2_GPIO_P1_5
+#define PEN_CLOCK RPI_V2_GPIO_P1_03
+#define PEN_DIR RPI_V2_GPIO_P1_05
 #define RIGHT_CLOCK RPI_V2_GPIO_P1_22 
 #define RIGHT_DIR RPI_V2_GPIO_P1_18
 #define LEFT_CLOCK RPI_V2_GPIO_P1_13
 #define LEFT_DIR RPI_V2_GPIO_P1_15
-#define CENTER_CLOCK RPI_V2_GPIO_P1_11 
+#define CENTER_CLOCK RPI_V2_GPIO_P1_11
 #define CENTER_DIR RPI_V2_GPIO_P1_12
 #define SOLENOID RPI_V2_GPIO_P1_16
 
@@ -69,7 +69,7 @@ int penmovestate = 1;
 int penmove = 1;
 
 int pen_y = 0;
-int pen_max_y = 400;
+int pen_max_y = 800;
 
 
 #ifndef __PI__
@@ -131,7 +131,6 @@ void sketchy_resume(){
 #ifdef __PI__
 
 void pen_action(){
-    printf("pen action\n");
     while(1){
         rt_task_wait_period(NULL);
         bool shouldDraw = (BOT->penMode == penModeManualDown);
@@ -140,29 +139,31 @@ void pen_action(){
         }else{
             penmove = 1;
         }
-
-        int i = 0;
         if(penmovestate != penmove){
-            if(penmove == 1){
+            if(penmove == 0){
                 bcm2835_gpio_write(PEN_DIR, HIGH);
-            }else if(penmove == 2){
+		if(pen_y == 0){
+		    pen_y = 1;
+		}
+            }else if(penmove == 1){
                 bcm2835_gpio_write(PEN_DIR, LOW);
+		if(pen_y == pen_max_y){
+		    pen_y = pen_max_y - 1;
+		}
             }
             penmovestate = penmove;
         }
-
         if (pen_y < pen_max_y && pen_y > 0){
-            if(penmove == 1){
+            if(penmove == 0){
                 pen_y ++;
-            }
-            if(penmove == 2){
+	    }
+            if(penmove == 1){
                 pen_y --;
             }
             bcm2835_gpio_write(PEN_CLOCK, HIGH);
             rt_task_sleep(100);
             bcm2835_gpio_write(PEN_CLOCK, LOW);
         }
-
         rt_task_set_periodic(&pen_task, TM_NOW, 50000);
     }
 }
