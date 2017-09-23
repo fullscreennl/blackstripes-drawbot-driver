@@ -12,8 +12,7 @@
 
     <g transform="scale(1.000000)">
        
-        <rect width="10000" height="2000" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" />
-        <circle cx="200" cy="1500" r="20" stroke="black" stroke-width="3" fill="none" />
+        <rect width="2000" height="2000" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" />
         
     </g>
 
