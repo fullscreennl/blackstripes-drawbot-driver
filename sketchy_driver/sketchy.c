@@ -325,6 +325,8 @@ int run(void (*executeMotion)()){
         //return 1;
     }
 
+    bcm2835_gpio_fsel(PEN_CLOCK, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(PEN_DIR, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(RIGHT_CLOCK, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(RIGHT_DIR, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(LEFT_CLOCK, BCM2835_GPIO_FSEL_OUTP);
