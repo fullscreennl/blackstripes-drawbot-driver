@@ -232,9 +232,9 @@ void executeStep(Step *step){
     if(stepcenter != centerdir){
  
         if(stepcenter == horizontalMovementDirRight){
-                bcm2835_gpio_write(CENTER_DIR, LOW);
-        }else if(stepcenter == horizontalMovementDirLeft){
                 bcm2835_gpio_write(CENTER_DIR, HIGH);
+        }else if(stepcenter == horizontalMovementDirLeft){
+                bcm2835_gpio_write(CENTER_DIR, LOW);
         }
 
         centerdir = stepcenter;
