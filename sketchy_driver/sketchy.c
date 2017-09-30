@@ -208,9 +208,9 @@ void executeStep(Step *step){
         //the gearboxes are mirrored to make the machine look better
         //so the direction signals have to be inverted
         if(stepleft == stepperMotorDirUp){
-            bcm2835_gpio_write(LEFT_DIR, HIGH);
-        }else if(stepleft == stepperMotorDirDown){
             bcm2835_gpio_write(LEFT_DIR, LOW);
+        }else if(stepleft == stepperMotorDirDown){
+            bcm2835_gpio_write(LEFT_DIR, HIGH);
         }
 
         leftdir = stepleft;
@@ -220,9 +220,9 @@ void executeStep(Step *step){
     if(stepright != rightdir){
 
         if(stepright == stepperMotorDirUp){
-            bcm2835_gpio_write(RIGHT_DIR, LOW);
-        }else if(stepright == stepperMotorDirDown){
             bcm2835_gpio_write(RIGHT_DIR, HIGH);
+        }else if(stepright == stepperMotorDirDown){
+            bcm2835_gpio_write(RIGHT_DIR, LOW);
         }
 
         rightdir = stepright;

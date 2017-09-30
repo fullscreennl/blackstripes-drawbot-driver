@@ -12,8 +12,10 @@
 
     <g transform="scale(1.000000)">
        
-        <rect width="3000" height="2000" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" />
-        
+	<!-- <rect width="3000" height="2000" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" /> -->
+	<ellipse 
+        	rx="1500" ry="500" cx ="1500" cy="1000" 
+        	fill="none" stroke="black" stroke-width="3"  />        
     </g>
 
 </svg>
