@@ -358,6 +358,7 @@ void Model_moveHome(){
     printf("homing...\n");
     //Model_moveTo(BOT->home);
     Model_computeSegments(BOT->home->x, BOT->home->y, 0.0, 1);
+    Model_setCenter(0.0);
     Point_updateWithXY(BOT->currentLocation, BOT->home->x, BOT->home->y);
 }
 
