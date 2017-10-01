@@ -212,6 +212,7 @@ void runSVG(){
     nsvgDelete(image);
     home();
     Model_finish();
+    Model_null();
     Point_release(POINT);
 
 }

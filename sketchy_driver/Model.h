@@ -50,6 +50,7 @@ void Model_moveHome();
 void Model_setExecuteStepCallback(void (*executeStepCallback)(Step *step));
 void Model_setPenMode(PenMode mode);
 void Model_finish();
+void Model_null();
 void Model_resume();
 int Model_getCenter();
 void Model_setCenter(float newCenter);

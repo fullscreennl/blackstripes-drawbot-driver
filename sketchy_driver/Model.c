@@ -361,6 +361,18 @@ void Model_moveHome(){
     Point_updateWithXY(BOT->currentLocation, BOT->home->x, BOT->home->y);
 }
 
+void Model_null(){
+    printf("nulling...\n");
+    int delta_steps_center = 0 - BOT->centersteps;
+    int delta_steps_left = 0 - BOT->leftsteps;
+    int delta_steps_right = 0 - BOT->rightsteps;
+    printf("l %i r %i c %i \n", delta_steps_left, delta_steps_right, delta_steps_center);
+    Point *p = Point_allocWithSteps(0,0);
+    Model_generateSteps(p, 0);
+    Point_release(p);
+}
+
+
 void Model_moveTo(float x, float y){
 
     float c = Point_needsPositionUpdateWith(x, y);
