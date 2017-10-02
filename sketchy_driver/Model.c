@@ -206,13 +206,8 @@ void Model_prepareAxis(int *lmr, int *lp, int *lsp, int *lmax,
     return;
 }
 
-void Model_generateSteps(Point *to, float center){
 
-    //Point_log(to);
-
-    int delta_steps_center = (int)round(center / MOVEMENT_STEP) - BOT->centersteps;
-    int delta_steps_left = to->left_steps - BOT->leftsteps;
-    int delta_steps_right = to->right_steps - BOT->rightsteps;
+void Model__generateSteps(int delta_steps_center, int delta_steps_left, int delta_steps_right){
 
     int largest = MAX(abs(delta_steps_left),abs(delta_steps_right));
     largest = MAX(largest, abs(delta_steps_center));
@@ -303,6 +298,15 @@ void Model_generateSteps(Point *to, float center){
 
 }
 
+
+void Model_generateSteps(Point *to, float center){
+    int delta_steps_center = (int)round(center / MOVEMENT_STEP) - BOT->centersteps;
+    int delta_steps_left = to->left_steps - BOT->leftsteps;
+    int delta_steps_right = to->right_steps - BOT->rightsteps;
+    Model__generateSteps(delta_steps_center, delta_steps_left, delta_steps_right);
+}
+
+
 bool willDrawForLevelAtPoint(){
     return (BOT->scheduledPenMode == penModeManualDown);
 }
@@ -316,6 +320,7 @@ void Model_computeSegments(float _x, float _y, float _c, int headMovement){
     float length = sqrt(deltaX*deltaX + deltaY*deltaY);
 
     int numsteps = round(length/LINE_SEGMENT_SIZE_MM);
+    numsteps = 1.0;
     float numspaces = (float)numsteps;
 
     float xstep = deltaX/numspaces;
@@ -356,7 +361,6 @@ void SpeedManager_callback(float x, float y, float c, int delay, int cursor, int
 
 void Model_moveHome(){
     printf("homing...\n");
-    //Model_moveTo(BOT->home);
     Model_computeSegments(BOT->home->x, BOT->home->y, 0.0, 1);
     Model_setCenter(0.0);
     Point_updateWithXY(BOT->currentLocation, BOT->home->x, BOT->home->y);
@@ -367,10 +371,7 @@ void Model_null(){
     int delta_steps_center = 0 - BOT->centersteps;
     int delta_steps_left = 0 - BOT->leftsteps;
     int delta_steps_right = 0 - BOT->rightsteps;
-    printf("l %i r %i c %i \n", delta_steps_left, delta_steps_right, delta_steps_center);
-    Point *p = Point_allocWithSteps(0,0);
-    Model_generateSteps(p, 0);
-    Point_release(p);
+    Model__generateSteps(delta_steps_center, delta_steps_left, delta_steps_right);
 }
 
 

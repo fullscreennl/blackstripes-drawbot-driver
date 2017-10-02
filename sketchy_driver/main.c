@@ -29,10 +29,8 @@ void moveTo(float x, float y){
 }
 
 void home(){
-    printf("homing...\n");
-    moveTo(BOT->home->x, BOT->home->y);
+    Model_moveHome();
 }
-
 
 int __moveTo(lua_State *L){
 
