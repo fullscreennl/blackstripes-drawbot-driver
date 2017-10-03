@@ -11,11 +11,7 @@
      xml:space="preserve"> 
 
     <g transform="scale(1.000000)">
-       
-	<!-- <rect width="3000" height="2000" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" /> -->
-	<ellipse 
-        	rx="1500" ry="500" cx ="1500" cy="1000" 
-        	fill="none" stroke="black" stroke-width="3"  />        
+        <line x1="490" y1="500" x2="650" y2="500" style="stroke:rgb(255,0,0);stroke-width:2" />
     </g>
 
 </svg>
