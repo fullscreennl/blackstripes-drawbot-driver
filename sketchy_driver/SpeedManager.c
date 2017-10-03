@@ -230,9 +230,6 @@ void SpeedManager_finish(SpeedManager *sm){
         curr = curr->next;
     }
 
-#ifdef __PI__
-    alarm(1);
-#endif
 
 }
 

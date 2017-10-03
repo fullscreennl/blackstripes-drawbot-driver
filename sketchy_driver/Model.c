@@ -371,6 +371,11 @@ void Model_null(){
     Point *p = Point_allocWithSteps(0,0);
     Model_generateSteps(p, 0);
     Point_release(p);
+    Point_updateWithXY(BOT->currentLocation, p->x, p->y);
+    Model_setCenter(0.0);
+#ifdef __PI__
+    alarm(1);
+#endif
 }
 
 
