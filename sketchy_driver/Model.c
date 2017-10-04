@@ -324,8 +324,8 @@ void SpeedManager_callback(float x, float y, float c, int delay, int cursor, int
     //printf("callback x %f y %f c %f delay %i \n",x,y,c,delay);
     BOT->penMode = penMode;
     BOT->delay = delay;
-    Point_updateWithXY(Model_toPoint, x, y);
     Model_setCenter(c);
+    Point_updateWithXY(Model_toPoint, x, y);
     Model_generateSteps(Model_toPoint, c);
 }
 
