@@ -95,8 +95,6 @@ void Model_addStep(int left, int right, int center){
         BOT->centersteps --;
     }
 
-    BOT->currentCenter = BOT->centersteps * MOVEMENT_STEP;
-
 }
 
 void Model_createInstance(){
