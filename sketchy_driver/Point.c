@@ -249,8 +249,6 @@ Point *Point_allocWithXY(float x, float y){
 }
 
 void Point_updateWithXY(Point *p,float x, float y){
-
-
     p->x = x;
     p->y = y;
     Point_calculateAngle(p);

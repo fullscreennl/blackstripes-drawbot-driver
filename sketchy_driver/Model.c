@@ -53,7 +53,7 @@ void log_time(){
 
 }
 
-int Model_getCenter(){
+float Model_getCenter(){
     return BOT->currentCenter;
 }
 
@@ -63,11 +63,11 @@ void Model_setCenter(float newCenter){
     //BOT->currentLocation->x += delta;
 }
 
-int Model_getLeftShoulderX(){
+float Model_getLeftShoulderX(){
     return BOT->currentCenter + LEFT_SHOULDER_OFFSET;
 }
 
-int Model_getRightShoulderX(){
+float Model_getRightShoulderX(){
     return BOT->currentCenter + RIGHT_SHOULDER_OFFSET;
 }
 
@@ -95,7 +95,7 @@ void Model_addStep(int left, int right, int center){
         BOT->centersteps --;
     }
 
-    //BOT->currentCenter = BOT->centersteps * MOVEMENT_STEP;
+    BOT->currentCenter = BOT->centersteps * MOVEMENT_STEP;
 
 }
 
@@ -275,6 +275,7 @@ void Model_generateSteps(Point *to, float center){
     int delta_steps_center = (int)round(center / MOVEMENT_STEP) - BOT->centersteps;
     int delta_steps_left = to->left_steps - BOT->leftsteps;
     int delta_steps_right = to->right_steps - BOT->rightsteps;
+    //printf("c %f : %i -  %i = %i \n",BOT->currentCenter, to->left_steps ,BOT->leftsteps, delta_steps_left);
     Model__generateSteps(delta_steps_center, delta_steps_left, delta_steps_right);
 }
 
@@ -325,8 +326,8 @@ void SpeedManager_callback(float x, float y, float c, int delay, int cursor, int
     //printf("callback x %f y %f c %f delay %i \n",x,y,c,delay);
     BOT->penMode = penMode;
     BOT->delay = delay;
-    Model_setCenter(c);
     Point_updateWithXY(Model_toPoint, x, y);
+    Model_setCenter(c);
     Model_generateSteps(Model_toPoint, c);
 }
 

@@ -52,10 +52,10 @@ void Model_setPenMode(PenMode mode);
 void Model_finish();
 void Model_null();
 void Model_resume();
-int Model_getCenter();
+float Model_getCenter();
 void Model_setCenter(float newCenter);
-int Model_getLeftShoulderX();
-int Model_getRightShoulderX();
+float Model_getLeftShoulderX();
+float Model_getRightShoulderX();
 void log_time();
 
 void report_memory(int id);
