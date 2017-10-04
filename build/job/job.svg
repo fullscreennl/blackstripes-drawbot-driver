@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"> 
-<svg version="1.1" 
+<svg version="1.1" transform="scale(1.000000)"
      id="Layer_1" 
      xmlns="http://www.w3.org/2000/svg" 
      xmlns:xlink="http://www.w3.org/1999/xlink" 
@@ -9,11 +9,10 @@
      height="100%" viewBox="0 0 10000.000000 2000.000000" 
      enable-background="new 0 0 10000.000000 2000.000000" 
      xml:space="preserve"> 
-
-    <g transform="scale(1.000000)">
-        <line x1="490" y1="500" x2="650" y2="500" style="stroke:rgb(255,0,0);stroke-width:2" />
-    </g>
-
-</svg>
-
-
+ <g>
+       <!-- <rect width="3000" height="2000" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" /> -->
+       <ellipse
+               rx="1500" ry="500" cx ="1500" cy="1000"
+               fill="none" stroke="black" stroke-width="3"  />
+     </g>
+ </svg>
