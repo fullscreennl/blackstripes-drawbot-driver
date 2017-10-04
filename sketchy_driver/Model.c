@@ -292,7 +292,6 @@ void Model_computeSegments(float _x, float _y, float _c, int headMovement){
     float length = sqrt(deltaX*deltaX + deltaY*deltaY);
 
     int numsteps = round(length/LINE_SEGMENT_SIZE_MM);
-    numsteps = 1.0;
     float numspaces = (float)numsteps;
 
     float xstep = deltaX/numspaces;
