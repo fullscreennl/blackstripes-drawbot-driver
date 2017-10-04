@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "Model.h"
 #include "FSObject.h"
@@ -151,61 +152,69 @@ void Model_retain(){
     FSObject_retain(BOT);
 }
 
-/**
- 
- def prepare_axis(l, _max, left_skips):
-    if l == _max:
-        lmr = 1
-        lp = 0
-        lsp = 1
-        lmax = _max
-    else:
-        if left_skips > 0 and l > 0:
-            if left_skips >= l:
-                lmr = 1
-                lp = 0
-                lsp = int(_max / l)
-                lmax = l
-            else:
-                lmr = 0
-                lp = 1
-                lsp = int(_max / left_skips)
-                lmax = left_skips
-    return lmr, lp, lsp, lmax
+int *createAxis(int _steps, int _space, int max_iter, int value){
+    int l = _space;
+    int numsteps = _steps;
+    int iterations = 0;
+    int i;
+    int *steps = (int *) malloc(l * sizeof(int));
+    memset(steps, 0, l * sizeof(int));
+    
+    for(i=0; i< l; i++){
+        steps[i] = 1;
+    }
 
- */
+    if(_steps == 0){
+        return steps;
+    }
 
-void Model_prepareAxis(int *lmr, int *lp, int *lsp, int *lmax, 
-                       int l, int _max, int left_skips,
-                       int value, int spacing_value) {
-    if(l == _max){
-        *lmr = value;
-        *lp = spacing_value;
-        *lsp = 1;
-        *lmax = _max;
-    }else if(l == 0){
-        *lmr = spacing_value;
-        *lp = value;
-        *lsp = 1;
-        *lmax = _max;
-    }else{
-        if(left_skips > 0 && l > 0){
-            if(left_skips >= l){
-                *lmr = value;
-                *lp = spacing_value;
-                *lsp = (int)(_max / l);
-                *lmax = l;
-            }else{
-                *lmr = spacing_value;
-                *lp = value;
-                *lsp = (int)(_max / left_skips);
-                *lmax = left_skips;
-            }
+    float sp = l/(float)numsteps;
+    int insert_count = 0;
+    for(i=0; i< l; i+= (int)ceil(sp)){
+        if(steps[i] == 1){
+            steps[i] = value;
+            insert_count ++;
         }
     }
-    return;
-}
+    numsteps = numsteps - insert_count;
 
+    int num_freeindexes = l - insert_count;
+    int *freeindexes = (int *) malloc(num_freeindexes * sizeof(int));
+    memset(freeindexes, 0, num_freeindexes * sizeof(int));
+
+    while(numsteps > 0){
+        num_freeindexes = l - insert_count;
+
+        int index_counter = 0;
+        for(i=0; i<l; i++){
+            if(steps[i] == 1){
+                freeindexes[index_counter] = i;
+                index_counter ++;
+            }
+        }
+
+        sp = num_freeindexes/(float)numsteps;
+        int local_insert_count = 0;
+        int stride;
+        if(iterations >= max_iter){
+           stride = (int)floor(sp);
+        }else{
+           stride = (int)ceil(sp);
+        }
+        for(i=0; i< num_freeindexes; i += stride){
+            if(local_insert_count < numsteps){
+                int ind = freeindexes[i];
+                steps[ind] = value;
+                insert_count ++;
+                local_insert_count ++;
+            }
+        }
+        numsteps = numsteps - local_insert_count;
+        iterations ++;
+    }
+    free(freeindexes);
+    return steps;
+}
 
 void Model__generateSteps(int delta_steps_center, int delta_steps_left, int delta_steps_right){
 
@@ -240,62 +249,25 @@ void Model__generateSteps(int delta_steps_center, int delta_steps_left, int delt
         stepperdir_center = horizontalMovementDirNone;
     }
 
-    int leftSkips = largest - abs(delta_steps_left);
-    int rightSkips = largest - abs(delta_steps_right);
-    int centerSkips = largest - abs(delta_steps_center);
-
-    int lmr; int lp; int lsp; int lmax;
-    Model_prepareAxis(&lmr, &lp, &lsp, &lmax, abs(delta_steps_left), largest, leftSkips, stepperdir_left, stepperMotorDirNone);
-
-    int rmr; int rp; int rsp; int rmax;
-    Model_prepareAxis(&rmr, &rp, &rsp, &rmax, abs(delta_steps_right), largest, rightSkips, stepperdir_right, stepperMotorDirNone);
-
-    int cmr; int cp; int csp; int cmax;
-    Model_prepareAxis(&cmr, &cp, &csp, &cmax, abs(delta_steps_center), largest, centerSkips, stepperdir_center, horizontalMovementDirNone);
-
-    int lc = 0; int rc = 0; int cc = 0;
+    int *left_axis = createAxis(abs(delta_steps_left), largest, 10, stepperdir_left);
+    int *right_axis = createAxis(abs(delta_steps_right), largest, 10, stepperdir_right);
+    int *center_axis = createAxis(abs(delta_steps_center), largest, 10, stepperdir_center);
 
     Step *step = Step_alloc(stepperMotorDirNone, stepperMotorDirNone, horizontalMovementDirNone);
 
     int i = 0;
     for(i = 0; i < largest; i++){
-
-        int _l = 0; int _r = 0; int _c = 0;
-
-        if (i%lsp == 0 && lc < lmax){
-            _l = lmr;
-        }else{
-            _l = lp;
-        }
-        if (i%rsp == 0 && rc < rmax){
-            _r = rmr;
-        }else{
-            _r = rp;
-        }
-        if (i%csp == 0 && cc < cmax){
-            _c = cmr;
-        }else{
-            _c = cp;
-        }
-
-        if (_l == stepperdir_left){
-            lc ++;
-        }
-        if (_r == stepperdir_right){
-            rc ++;
-        }
-        if (_c == stepperdir_center){
-            cc ++;
-        }
-
-        Step_update(step, _l, _r, _c);
-        //printf("%i %i %i\n",_l,_r,_c);
+        // printf("l %i  r %i c %i \n", left_axis[i], right_axis[i], center_axis[i]);
+	Step_update(step, left_axis[i], right_axis[i], center_axis[i]);
         Model_addStep(step->leftengine, step->rightengine, step->horengine);
         BOT->executeStepCallback(step);
     }
-    //printf("- - - - - - \n");
+    // printf("- - - \n");
     Step_release(step);
-
+	
+    free(left_axis);
+    free(right_axis);
+    free(center_axis);
 }
 
 
