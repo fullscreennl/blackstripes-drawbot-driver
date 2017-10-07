@@ -69,7 +69,7 @@ int penmovestate = 1;
 int penmove = 1;
 
 int pen_y = 0;
-int pen_max_y = 800;
+int pen_max_y = 100;
 
 
 #ifndef __PI__
@@ -164,7 +164,7 @@ void pen_action(){
             rt_task_sleep(100);
             bcm2835_gpio_write(PEN_CLOCK, LOW);
         }
-        rt_task_set_periodic(&pen_task, TM_NOW, 50000);
+        rt_task_set_periodic(&pen_task, TM_NOW, 150000);
     }
 }
 
