@@ -201,6 +201,7 @@ void runSVG(){
                 Model_setPenMode(penModeManualUp);
                 home();
                 Model_finish();
+                Model_null();
                 Point_release(POINT);
                 return;
             }
