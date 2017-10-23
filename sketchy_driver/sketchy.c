@@ -309,8 +309,8 @@ void executeStep(Step *step){
 // move to null position until we run into the limit switches
 int autoNull(){
     Step *step = Step_alloc(stepperMotorDirUp, stepperMotorDirUp, horizontalMovementDirLeft);
+#ifdef __PI__
     int nullingInProgress = 1;
-#ifdef PI
     while(nullingInProgress){
         StepperMotorDir l;
         StepperMotorDir r;
