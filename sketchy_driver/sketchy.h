@@ -6,5 +6,6 @@
 int run(void (*executeMotion)());
 void sketchy_suspend();
 void sketchy_resume();
+int autoNull();
 
 #endif

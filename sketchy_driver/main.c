@@ -24,12 +24,16 @@
 Point *POINT;
 
 void moveTo(float x, float y){
-    //Point_updateWithXY(POINT, x, y);
     Model_moveTo(x, y);
 }
 
 void home(){
     Model_moveHome();
+}
+
+int __performAutoNulling(lua_State *L){
+    autoNull();
+    return 0;
 }
 
 int __moveTo(lua_State *L){
@@ -70,10 +74,11 @@ void loadLua(){
     lua_State *L;
 
     L = luaL_newstate();
-    luaL_openlibs(L); 
+    luaL_openlibs(L);
     lua_register(L,"moveTo",__moveTo);
-    lua_register(L,"penUp",__penUp); 
-    lua_register(L,"penDown",__penDown); 
+    lua_register(L,"autoNull",__performAutoNulling);
+    lua_register(L,"penUp",__penUp);
+    lua_register(L,"penDown",__penDown);
     lua_register(L,"canvasSize",__canvasSize); 
 
     if (luaL_loadfile(L, Config_getScriptName())){

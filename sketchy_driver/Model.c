@@ -256,13 +256,13 @@ void Model__generateSteps(int delta_steps_center, int delta_steps_left, int delt
     int i = 0;
     for(i = 0; i < largest; i++){
         // printf("l %i  r %i c %i \n", left_axis[i], right_axis[i], center_axis[i]);
-	Step_update(step, left_axis[i], right_axis[i], center_axis[i]);
+        Step_update(step, left_axis[i], right_axis[i], center_axis[i]);
         Model_addStep(step->leftengine, step->rightengine, step->horengine);
         BOT->executeStepCallback(step);
     }
     // printf("- - - \n");
     Step_release(step);
-	
+
     free(left_axis);
     free(right_axis);
     free(center_axis);

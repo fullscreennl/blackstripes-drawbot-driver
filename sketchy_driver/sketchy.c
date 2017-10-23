@@ -54,6 +54,10 @@ RT_TASK watchdog_task;
 #define CENTER_DIR RPI_V2_GPIO_P1_12
 #define SOLENOID RPI_V2_GPIO_P1_16
 
+#define CENTER_LIMIT RPI_V2_GPIO_P1_07
+#define LEFT_LIMIT RPI_V2_GPIO_P1_08
+#define RIGHT_LIMIT RPI_V2_GPIO_P1_10
+
 StepperMotorDir stepleft = stepperMotorDirNone;
 StepperMotorDir stepright = stepperMotorDirNone;
 HorizontalMovementDir stepcenter = horizontalMovementDirNone;
@@ -142,21 +146,21 @@ void pen_action(){
         if(penmovestate != penmove){
             if(penmove == 0){
                 bcm2835_gpio_write(PEN_DIR, HIGH);
-		if(pen_y == 0){
-		    pen_y = 1;
-		}
+                if(pen_y == 0){
+                    pen_y = 1;
+                }
             }else if(penmove == 1){
                 bcm2835_gpio_write(PEN_DIR, LOW);
-		if(pen_y == pen_max_y){
-		    pen_y = pen_max_y - 1;
-		}
+                if(pen_y == pen_max_y){
+                    pen_y = pen_max_y - 1;
+                }
             }
             penmovestate = penmove;
         }
         if (pen_y < pen_max_y && pen_y > 0){
             if(penmove == 0){
                 pen_y ++;
-	    }
+            }
             if(penmove == 1){
                 pen_y --;
             }
@@ -301,6 +305,44 @@ void executeStep(Step *step){
 
 }
 
+
+// move to null position until we run into the limit switches
+int autoNull(){
+    Step *step = Step_alloc(stepperMotorDirUp, stepperMotorDirUp, horizontalMovementDirLeft);
+    int nullingInProgress = 1;
+#ifdef PI
+    while(nullingInProgress){
+        StepperMotorDir l;
+        StepperMotorDir r;
+        HorizontalMovementDir c;
+
+        int left_inp = bcm2835_gpio_lev(LEFT_LIMIT);
+        int right_inp = bcm2835_gpio_lev(RIGHT_LIMIT);
+        int center_inp = bcm2835_gpio_lev(CENTER_LIMIT);
+
+        if(left_inp == HIGH){
+            l = stepperMotorDirNone;
+        }
+        if(right_inp == HIGH){
+            l = stepperMotorDirNone;
+        }
+        if(center_inp == HIGH){
+            l = horizontalMovementDirNone;
+        }
+
+        Step_update(step, l, r, c);
+        executeStep(step);
+
+        if(left_inp == HIGH && right_inp == HIGH && center_inp == HIGH){
+            nullingInProgress = 0;
+        }
+    }
+#endif
+    Step_release(step);
+    return 0;
+}
+
+
 void catch_signal(int sig)
 {
 }
@@ -334,6 +376,10 @@ int run(void (*executeMotion)()){
     bcm2835_gpio_fsel(CENTER_CLOCK, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(CENTER_DIR, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(SOLENOID, BCM2835_GPIO_FSEL_OUTP);
+
+    bcm2835_gpio_fsel(CENTER_LIMIT, BCM2835_GPIO_FSEL_INP);
+    bcm2835_gpio_fsel(LEFT_LIMIT, BCM2835_GPIO_FSEL_INP;
+    bcm2835_gpio_fsel(RIGHT_LIMIT, BCM2835_GPIO_FSEL_INP);
 
     bcm2835_gpio_write(SOLENOID, HIGH);
     rt_task_set_periodic(&draw_task, TM_NOW, BOT->delay);
