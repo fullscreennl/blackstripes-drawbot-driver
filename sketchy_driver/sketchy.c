@@ -324,10 +324,10 @@ int autoNull(){
             l = stepperMotorDirNone;
         }
         if(right_inp == HIGH){
-            l = stepperMotorDirNone;
+            r = stepperMotorDirNone;
         }
         if(center_inp == HIGH){
-            l = horizontalMovementDirNone;
+            c = horizontalMovementDirNone;
         }
 
         Step_update(step, l, r, c);
