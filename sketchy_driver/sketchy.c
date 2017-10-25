@@ -333,7 +333,7 @@ int autoNull(){
             c = horizontalMovementDirNone;
         }
 
-	printf("l %i r %i c %i\n", left_inp, right_inp, center_inp);
+	//printf("l %i r %i c %i\n", left_inp, right_inp, center_inp);
 
         Step_update(step, l, r, c);
         executeStep(step);
@@ -356,6 +356,7 @@ int autoNull(){
 #endif
 
     Step_release(step);
+    alarm(1);
     return 0;
 }
 
