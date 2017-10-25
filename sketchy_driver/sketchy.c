@@ -308,13 +308,16 @@ void executeStep(Step *step){
 
 // move to null position until we run into the limit switches
 int autoNull(){
+    BOT->penMode = penModeManualUp; 
+    BOT->delay = 200000; 
     Step *step = Step_alloc(stepperMotorDirUp, stepperMotorDirUp, horizontalMovementDirLeft);
+
 #ifdef __PI__
     int nullingInProgress = 1;
     while(nullingInProgress){
-        StepperMotorDir l;
-        StepperMotorDir r;
-        HorizontalMovementDir c;
+        StepperMotorDir l = stepperMotorDirUp;
+        StepperMotorDir r = stepperMotorDirUp;
+        HorizontalMovementDir c = horizontalMovementDirLeft;
 
         int left_inp = bcm2835_gpio_lev(LEFT_LIMIT);
         int right_inp = bcm2835_gpio_lev(RIGHT_LIMIT);
@@ -338,6 +341,7 @@ int autoNull(){
         }
     }
 #endif
+
     Step_release(step);
     return 0;
 }
@@ -377,9 +381,9 @@ int run(void (*executeMotion)()){
     bcm2835_gpio_fsel(CENTER_DIR, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(SOLENOID, BCM2835_GPIO_FSEL_OUTP);
 
-    bcm2835_gpio_fsel(CENTER_LIMIT, BCM2835_GPIO_FSEL_INP);
-    bcm2835_gpio_fsel(LEFT_LIMIT, BCM2835_GPIO_FSEL_INP;
-    bcm2835_gpio_fsel(RIGHT_LIMIT, BCM2835_GPIO_FSEL_INP);
+    bcm2835_gpio_fsel(CENTER_LIMIT, BCM2835_GPIO_FSEL_INPT);
+    bcm2835_gpio_fsel(LEFT_LIMIT, BCM2835_GPIO_FSEL_INPT);
+    bcm2835_gpio_fsel(RIGHT_LIMIT, BCM2835_GPIO_FSEL_INPT);
 
     bcm2835_gpio_write(SOLENOID, HIGH);
     rt_task_set_periodic(&draw_task, TM_NOW, BOT->delay);
