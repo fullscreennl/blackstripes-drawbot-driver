@@ -356,7 +356,9 @@ int autoNull(){
 #endif
 
     Step_release(step);
+#ifdef __PI__
     alarm(1);
+#endif 
     return 0;
 }
 
