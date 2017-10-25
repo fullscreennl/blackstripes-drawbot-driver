@@ -227,6 +227,11 @@ int main(int argc, char *argv[]){
     char *inifile = "config/default.ini";
     if(argc == 2){
         inifile = argv[1];
+        if(strcmp(inifile, "autonull") == 0){
+            printf(">>>> %s\n", inifile);
+	    autoNull();
+            return 0;
+	} 
     }
 
     if (Config_setIniBasePath(inifile) == -1){

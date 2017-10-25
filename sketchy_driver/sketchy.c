@@ -54,8 +54,8 @@ RT_TASK watchdog_task;
 #define CENTER_DIR RPI_V2_GPIO_P1_12
 #define SOLENOID RPI_V2_GPIO_P1_16
 
-#define CENTER_LIMIT RPI_V2_GPIO_P1_07
-#define LEFT_LIMIT RPI_V2_GPIO_P1_08
+#define CENTER_LIMIT RPI_V2_GPIO_P1_08
+#define LEFT_LIMIT RPI_V2_GPIO_P1_07
 #define RIGHT_LIMIT RPI_V2_GPIO_P1_10
 
 StepperMotorDir stepleft = stepperMotorDirNone;
@@ -309,14 +309,14 @@ void executeStep(Step *step){
 // move to null position until we run into the limit switches
 int autoNull(){
     BOT->penMode = penModeManualUp; 
-    BOT->delay = 200000; 
+    BOT->delay = 350000; 
     Step *step = Step_alloc(stepperMotorDirUp, stepperMotorDirUp, horizontalMovementDirLeft);
 
 #ifdef __PI__
     int nullingInProgress = 1;
     while(nullingInProgress){
-        StepperMotorDir l = stepperMotorDirUp;
-        StepperMotorDir r = stepperMotorDirUp;
+        StepperMotorDir l = stepperMotorDirDown;
+        StepperMotorDir r = stepperMotorDirDown;
         HorizontalMovementDir c = horizontalMovementDirLeft;
 
         int left_inp = bcm2835_gpio_lev(LEFT_LIMIT);
@@ -333,6 +333,8 @@ int autoNull(){
             c = horizontalMovementDirNone;
         }
 
+	printf("l %i r %i c %i\n", left_inp, right_inp, center_inp);
+
         Step_update(step, l, r, c);
         executeStep(step);
 
@@ -340,6 +342,17 @@ int autoNull(){
             nullingInProgress = 0;
         }
     }
+    
+    int num_steps = 32000;
+    HorizontalMovementDir h = horizontalMovementDirRight;
+    while(num_steps--){
+        if(num_steps < 32000 - 12800){
+	    h = horizontalMovementDirNone;
+	}
+        Step_update(step, stepperMotorDirUp, stepperMotorDirUp, h);
+        executeStep(step);
+    }	
+    
 #endif
 
     Step_release(step);
@@ -371,6 +384,7 @@ int run(void (*executeMotion)()){
         //return 1;
     }
 
+
     bcm2835_gpio_fsel(PEN_CLOCK, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PEN_DIR, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(RIGHT_CLOCK, BCM2835_GPIO_FSEL_OUTP);
@@ -384,6 +398,10 @@ int run(void (*executeMotion)()){
     bcm2835_gpio_fsel(CENTER_LIMIT, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_fsel(LEFT_LIMIT, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_fsel(RIGHT_LIMIT, BCM2835_GPIO_FSEL_INPT);
+    
+    bcm2835_gpio_set_pud(CENTER_LIMIT, BCM2835_GPIO_PUD_DOWN);
+    bcm2835_gpio_set_pud(LEFT_LIMIT, BCM2835_GPIO_PUD_DOWN);
+    bcm2835_gpio_set_pud(RIGHT_LIMIT, BCM2835_GPIO_PUD_DOWN);
 
     bcm2835_gpio_write(SOLENOID, HIGH);
     rt_task_set_periodic(&draw_task, TM_NOW, BOT->delay);
