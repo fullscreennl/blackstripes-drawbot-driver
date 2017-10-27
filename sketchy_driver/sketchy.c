@@ -333,7 +333,7 @@ int autoNull(){
             c = horizontalMovementDirNone;
         }
 
-	//printf("l %i r %i c %i\n", left_inp, right_inp, center_inp);
+        //printf("l %i r %i c %i\n", left_inp, right_inp, center_inp);
 
         Step_update(step, l, r, c);
         executeStep(step);
@@ -342,23 +342,23 @@ int autoNull(){
             nullingInProgress = 0;
         }
     }
-    
+
     int num_steps = 32000;
     HorizontalMovementDir h = horizontalMovementDirRight;
     while(num_steps--){
         if(num_steps < 32000 - 12800){
-	    h = horizontalMovementDirNone;
-	}
+        h = horizontalMovementDirNone;
+    }
         Step_update(step, stepperMotorDirUp, stepperMotorDirUp, h);
         executeStep(step);
-    }	
-    
+    }
+
 #endif
 
     Step_release(step);
 #ifdef __PI__
     alarm(1);
-#endif 
+#endif
     return 0;
 }
 
@@ -401,7 +401,7 @@ int run(void (*executeMotion)()){
     bcm2835_gpio_fsel(CENTER_LIMIT, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_fsel(LEFT_LIMIT, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_fsel(RIGHT_LIMIT, BCM2835_GPIO_FSEL_INPT);
-    
+
     bcm2835_gpio_set_pud(CENTER_LIMIT, BCM2835_GPIO_PUD_DOWN);
     bcm2835_gpio_set_pud(LEFT_LIMIT, BCM2835_GPIO_PUD_DOWN);
     bcm2835_gpio_set_pud(RIGHT_LIMIT, BCM2835_GPIO_PUD_DOWN);
