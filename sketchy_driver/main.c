@@ -97,6 +97,7 @@ void runLuaScript(){
     loadLua();
     home();
     Model_finish();
+    Model_null();
     Point_release(POINT);
 }
 
