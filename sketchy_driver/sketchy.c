@@ -314,6 +314,11 @@ int autoNull(){
 
 #ifdef __PI__
     int nullingInProgress = 1;
+    int left_inp_count = 0;
+    int right_inp_count = 0;
+    int center_inp_count = 0;
+    int INP_BUFFER_SIZE = 100;
+    int INPUT_COUNT_LIMIT = 10000;
     while(nullingInProgress){
         StepperMotorDir l = stepperMotorDirDown;
         StepperMotorDir r = stepperMotorDirDown;
@@ -325,30 +330,48 @@ int autoNull(){
 
         if(left_inp == HIGH){
             l = stepperMotorDirNone;
-        }
+            if(left_inp_count < INPUT_COUNT_LIMIT){
+	    	left_inp_count ++;
+	    }
+        }else{
+            left_inp_count = 0;
+	}
+
         if(right_inp == HIGH){
             r = stepperMotorDirNone;
-        }
-        if(center_inp == HIGH){
-            c = horizontalMovementDirNone;
+            if(right_inp_count < INPUT_COUNT_LIMIT){
+	        right_inp_count ++;
+            }
+        }else{
+            right_inp_count = 0;
         }
 
-        //printf("l %i r %i c %i\n", left_inp, right_inp, center_inp);
+        if(center_inp == HIGH){
+            c = horizontalMovementDirNone;
+            if(center_inp_count < INPUT_COUNT_LIMIT){
+                center_inp_count ++;
+            }
+        }else{
+            center_inp_count = 0;
+        }
+
+        //printf("l %i r %i c %i\n", left_inp_count, right_inp_count, center_inp_count);
 
         Step_update(step, l, r, c);
         executeStep(step);
 
-        if(left_inp == HIGH && right_inp == HIGH && center_inp == HIGH){
+        if(left_inp_count > INP_BUFFER_SIZE && right_inp_count > INP_BUFFER_SIZE && center_inp_count > INP_BUFFER_SIZE){
             nullingInProgress = 0;
         }
     }
 
-    int num_steps = 32000;
+    int num_steps = NULL_DEGREES_LEFT / ANGLE_PER_STEP; 
+    int num_steps_init = num_steps;
     HorizontalMovementDir h = horizontalMovementDirRight;
     while(num_steps--){
-        if(num_steps < 32000 - 12800){
-        h = horizontalMovementDirNone;
-    }
+        if(num_steps < (num_steps_init - 12800)){
+            h = horizontalMovementDirNone;
+        }
         Step_update(step, stepperMotorDirUp, stepperMotorDirUp, h);
         executeStep(step);
     }
