@@ -35,6 +35,7 @@ SpeedManager *SpeedManager_alloc()
     sm->currentY = home->y;
     sm->currentDirection = 0.0;
     sm->delay = Config_maxDelay();
+    sm->max_delay = Config_maxDelay();
     sm->targetDelay = Config_maxDelay();
     sm->delayPerDegree = (sm->delay - Config_minDelay()) / 180.0;
     sm->delayPerDegreeMove = (sm->delay - Config_minMoveDelay()) / 180.0;
@@ -61,12 +62,14 @@ void SpeedManager_resume(SpeedManager *sm){
 }
 
 void SpeedManager_copmuteDelay(SpeedManager *sm){
-    if(fabs(sm->targetDelay - sm->delay) < sm->delayStep){
+    float fact = (float)sm->targetDelay / (float)sm->max_delay;
+    int dstep = sm->delayStep * fact; 
+    if(fabs(sm->targetDelay - sm->delay) < dstep){
         sm->delay = sm->targetDelay;
     }else if(sm->targetDelay > sm->delay){
-        sm->delay += sm->delayStep;
+        sm->delay += dstep;
     }else if(sm->targetDelay < sm->delay){
-        sm->delay -= sm->delayStep;
+        sm->delay -= dstep;
     }
 }
 

@@ -33,6 +33,7 @@ typedef struct SpeedManager{
     int targetDelay;
     int delayStep;
     int delayStepDraw;
+    int max_delay;
     int delayStepMove;
     float delayPerDegree;
     float delayPerDegreeMove;
