@@ -63,7 +63,7 @@ void SpeedManager_resume(SpeedManager *sm){
 
 void SpeedManager_copmuteDelay(SpeedManager *sm){
     float fact = (float)sm->targetDelay / (float)sm->max_delay;
-    int dstep = sm->delayStep * fact; 
+    int dstep = sm->delayStep; // * fact; 
     if(fabs(sm->targetDelay - sm->delay) < dstep){
         sm->delay = sm->targetDelay;
     }else if(sm->targetDelay > sm->delay){
