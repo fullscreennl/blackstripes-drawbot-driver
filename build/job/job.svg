@@ -1,20 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"> 
-<svg version="1.1" 
-     id="Layer_1" 
-     xmlns="http://www.w3.org/2000/svg" 
-     xmlns:xlink="http://www.w3.org/1999/xlink" 
-     x="0px" y="0px" 
-     width="100%" 
-     height="100%" viewBox="0 0 10000.000000 2000.000000" 
-     enable-background="new 0 0 10000.000000 2000.000000" 
-     xml:space="preserve"> 
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+     id="Layer_1"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     x="0px" y="0px"
+     width="100%"
+     height="100%" viewBox="0 0 10000.000000 2000.000000"
+     enable-background="new 0 0 10000.000000 2000.000000"
+     xml:space="preserve">
 
-    <g transform="scale(1.000000)">
-    <line x1="1500" y1="0" x2="1500" y2="0" style="stroke:rgb(255,0,0);stroke-width:2" />  
-	<rect x='1000' y='0' width="1000" height="2000" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" />      
+    
+    <line x1="2450.0" y1="0" x2="2450.0" y2="0" style="stroke:rgb(255,0,0);stroke-width:2" />
+    <g transform="scale(1.000000) translate(2200, 600)">
+        
+		        <rect height="300" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" width="300"/>        
+	
     </g>
 
+    <line x1="1250.0" y1="0" x2="1250.0" y2="0" style="stroke:rgb(255,0,0);stroke-width:2" />
+    <g transform="scale(1.000000) translate(1000, 1200)">
+        
+		        <rect height="300" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" width="300"/>        
+	
+    </g>
+
+    <line x1="3250.0" y1="0" x2="3250.0" y2="0" style="stroke:rgb(255,0,0);stroke-width:2" />
+    <g transform="scale(1.000000) translate(3000, 400)">
+        
+		        <rect height="300" style="fill:none;stroke-width:3;stroke:rgb(0,0,0)" width="300"/>        
+	
+    </g>
+
+
 </svg>
-
-
