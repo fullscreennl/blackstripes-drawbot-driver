@@ -37,8 +37,8 @@ SpeedManager *SpeedManager_alloc()
     sm->delay = Config_maxDelay();
     sm->max_delay = Config_maxDelay();
     sm->targetDelay = Config_maxDelay();
-    sm->delayPerDegree = (sm->delay - Config_minDelay()) / 180.0;
-    sm->delayPerDegreeMove = (sm->delay - Config_minMoveDelay()) / 180.0;
+    sm->delayPerDegree = (sm->delay - Config_minDelay()) / 90.0;
+    sm->delayPerDegreeMove = (sm->delay - Config_minMoveDelay()) / 90.0;
     sm->delayStepDraw = fabs((Config_maxDelay() - Config_minDelay()) / sm->length);
     sm->delayStepMove = fabs((Config_maxDelay() - Config_minMoveDelay()) / sm->length);
     sm->delayStep = sm->delayStepDraw;
@@ -52,8 +52,8 @@ SpeedManager *SpeedManager_alloc()
 void SpeedManager_resume(SpeedManager *sm){
     Config_reload();
     sm->length = Config_getLookaheadMM();
-    sm->delayPerDegree = (Config_maxDelay() - Config_minDelay()) / 180.0;
-    sm->delayPerDegreeMove = (Config_maxDelay() - Config_minMoveDelay()) / 180.0;
+    sm->delayPerDegree = (Config_maxDelay() - Config_minDelay()) / 90.0;
+    sm->delayPerDegreeMove = (Config_maxDelay() - Config_minMoveDelay()) / 90.0;
     sm->delayStepDraw = fabs((Config_maxDelay() - Config_minDelay()) / sm->length);
     sm->delayStepMove = fabs((Config_maxDelay() - Config_minMoveDelay()) / sm->length);
     sm->delayStep = sm->delayStepDraw;
@@ -62,8 +62,7 @@ void SpeedManager_resume(SpeedManager *sm){
 }
 
 void SpeedManager_copmuteDelay(SpeedManager *sm){
-    float fact = (float)sm->targetDelay / (float)sm->max_delay;
-    int dstep = sm->delayStep; // * fact; 
+    int dstep = fabs(sm->targetDelay - sm->delay) / sm->length; 
     if(fabs(sm->targetDelay - sm->delay) < dstep){
         sm->delay = sm->targetDelay;
     }else if(sm->targetDelay > sm->delay){
@@ -126,10 +125,14 @@ void SpeedManager_compute(SpeedManager *sm){
         sm->targetDelay = Config_maxDelay();
     }else{ //if(max != sm->max){
         sm->max = max;
-        if(solenoidState == 0){
-            sm->targetDelay = Config_minMoveDelay() + sm->max * sm->delayPerDegreeMove;
+        if(sm->max >= 90.0){
+            sm->targetDelay = Config_maxDelay();
         }else{
-            sm->targetDelay = Config_minDelay() + sm->max * sm->delayPerDegree;
+            if(solenoidState == 0){
+                sm->targetDelay = Config_minMoveDelay() + sm->max * sm->delayPerDegreeMove;
+            }else{
+                sm->targetDelay = Config_minDelay() + sm->max * sm->delayPerDegree;
+            }
         }
     }
 }
