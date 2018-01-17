@@ -108,11 +108,9 @@ void SpeedManager_compute(SpeedManager *sm){
             if(solenoidState == 0){
                 penUpAhead = 0;
                 penDownAhead = 1;
-                sm->delayStep = sm->delayStepMove;
             }else{
                 penUpAhead = 1;
                 penDownAhead = 0;
-                sm->delayStep = sm->delayStepDraw;
             }
         } 
         if(fabs(curr->direction) > max){
@@ -120,23 +118,27 @@ void SpeedManager_compute(SpeedManager *sm){
         }
         curr = curr->next;
     }
-
-    if((penChangeAhead && sm->usePenChangeInLookAhead) || headMovementAhead){
-        sm->targetDelay = Config_maxDelay();
-        sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
-    }else if(round(max) != round(sm->max)){
+    if(round(max) != round(sm->max)){
         sm->max = max;
-        if(sm->max >= 90.0){
+        //if((penChangeAhead && sm->usePenChangeInLookAhead) || headMovementAhead){
+        if((penChangeAhead && sm->usePenChangeInLookAhead)){
             sm->targetDelay = Config_maxDelay();
             sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
-        }else{
-            if(solenoidState == 0){
-                sm->targetDelay = Config_minMoveDelay() + sm->max * sm->delayPerDegreeMove;
+            // printf("delay %i\n", sm->delayStep);
+        }else{ 
+            if(sm->max >= 90.0){
+                sm->targetDelay = Config_maxDelay();
                 sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
             }else{
-                sm->targetDelay = Config_minDelay() + sm->max * sm->delayPerDegree;
-                sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
+                if(solenoidState == 0){
+                    sm->targetDelay = Config_minMoveDelay() + sm->max * sm->delayPerDegreeMove;
+                    sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
+                }else{
+                    sm->targetDelay = Config_minDelay() + sm->max * sm->delayPerDegree;
+                    sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
+                }
             }
+            // printf("max %f delay %i\n", sm->max, sm->delayStep);
         }
     }
 }

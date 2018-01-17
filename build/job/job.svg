@@ -32,5 +32,8 @@
 	
     </g>
 
+    <polyline points="200,200 400,250 600,400 800,120 120,1400 200,1800"
+              style="fill:none;stroke:black;stroke-width:3" />
+
 
 </svg>
