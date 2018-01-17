@@ -36,7 +36,7 @@ SpeedManager *SpeedManager_alloc()
     sm->currentDirection = 0.0;
     sm->delay = Config_maxDelay();
     sm->max_delay = Config_maxDelay();
-    sm->targetDelay = Config_maxDelay();
+    sm->targetDelay = Config_minDelay();
     sm->delayPerDegree = (sm->delay - Config_minDelay()) / 90.0;
     sm->delayPerDegreeMove = (sm->delay - Config_minMoveDelay()) / 90.0;
     sm->delayStepDraw = fabs((Config_maxDelay() - Config_minDelay()) / sm->length);
@@ -62,7 +62,7 @@ void SpeedManager_resume(SpeedManager *sm){
 }
 
 void SpeedManager_copmuteDelay(SpeedManager *sm){
-    int dstep = fabs(sm->targetDelay - sm->delay) / sm->length; 
+    int dstep = sm->delayStep; 
     if(fabs(sm->targetDelay - sm->delay) < dstep){
         sm->delay = sm->targetDelay;
     }else if(sm->targetDelay > sm->delay){
@@ -123,15 +123,19 @@ void SpeedManager_compute(SpeedManager *sm){
 
     if((penChangeAhead && sm->usePenChangeInLookAhead) || headMovementAhead){
         sm->targetDelay = Config_maxDelay();
-    }else{ //if(max != sm->max){
+        sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
+    }else if(round(max) != round(sm->max)){
         sm->max = max;
         if(sm->max >= 90.0){
             sm->targetDelay = Config_maxDelay();
+            sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
         }else{
             if(solenoidState == 0){
                 sm->targetDelay = Config_minMoveDelay() + sm->max * sm->delayPerDegreeMove;
+                sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
             }else{
                 sm->targetDelay = Config_minDelay() + sm->max * sm->delayPerDegree;
+                sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
             }
         }
     }
