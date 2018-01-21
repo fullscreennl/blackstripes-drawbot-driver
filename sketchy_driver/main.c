@@ -32,7 +32,12 @@ void home(){
 }
 
 int __performAutoNulling(lua_State *L){
-    autoNull();
+    autoNull(0);
+    return 0;
+}
+
+int __performPowerDown(lua_State *L){
+    autoNull(1);
     return 0;
 }
 
@@ -77,6 +82,7 @@ void loadLua(){
     luaL_openlibs(L);
     lua_register(L,"moveTo",__moveTo);
     lua_register(L,"autoNull",__performAutoNulling);
+    lua_register(L,"powerDown",__performPowerDown);
     lua_register(L,"penUp",__penUp);
     lua_register(L,"penDown",__penDown);
     lua_register(L,"canvasSize",__canvasSize); 

@@ -307,7 +307,7 @@ void executeStep(Step *step){
 
 
 // move to null position until we run into the limit switches
-int autoNull(){
+int autoNull(powerDown){
     BOT->penMode = penModeManualUp; 
     BOT->delay = 350000; 
     Step *step = Step_alloc(stepperMotorDirUp, stepperMotorDirUp, horizontalMovementDirLeft);
@@ -331,16 +331,16 @@ int autoNull(){
         if(left_inp == HIGH){
             l = stepperMotorDirNone;
             if(left_inp_count < INPUT_COUNT_LIMIT){
-	    	left_inp_count ++;
-	    }
+                left_inp_count ++;
+            }
         }else{
             left_inp_count = 0;
-	}
+        }
 
         if(right_inp == HIGH){
             r = stepperMotorDirNone;
             if(right_inp_count < INPUT_COUNT_LIMIT){
-	        right_inp_count ++;
+                right_inp_count ++;
             }
         }else{
             right_inp_count = 0;
@@ -365,19 +365,20 @@ int autoNull(){
         }
     }
 
-    int num_steps = NULL_DEGREES_LEFT / ANGLE_PER_STEP; 
-    int num_steps_init = num_steps;
-    HorizontalMovementDir h = horizontalMovementDirRight;
-    while(num_steps--){
-        if(num_steps < (num_steps_init - 12800)){
-            h = horizontalMovementDirNone;
+    if (! powerDown)
+        int num_steps = NULL_DEGREES_LEFT / ANGLE_PER_STEP; 
+        int num_steps_init = num_steps;
+        HorizontalMovementDir h = horizontalMovementDirRight;
+        while(num_steps--){
+            if(num_steps < (num_steps_init - 12800)){
+                h = horizontalMovementDirNone;
+            }
+            Step_update(step, stepperMotorDirUp, stepperMotorDirUp, h);
+            executeStep(step);
         }
-        Step_update(step, stepperMotorDirUp, stepperMotorDirUp, h);
-        executeStep(step);
     }
 
 #endif
-
     Step_release(step);
 #ifdef __PI__
     alarm(1);
