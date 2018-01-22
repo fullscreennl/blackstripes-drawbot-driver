@@ -37,6 +37,11 @@ int __performAutoNulling(lua_State *L){
 }
 
 int __performPowerDown(lua_State *L){
+    autoNull(2);
+    return 0;
+}
+
+int __performRefill(lua_State *L){
     autoNull(1);
     return 0;
 }
@@ -83,6 +88,7 @@ void loadLua(){
     lua_register(L,"moveTo",__moveTo);
     lua_register(L,"autoNull",__performAutoNulling);
     lua_register(L,"powerDown",__performPowerDown);
+    lua_register(L,"refill",__performRefill);
     lua_register(L,"penUp",__penUp);
     lua_register(L,"penDown",__penDown);
     lua_register(L,"canvasSize",__canvasSize); 
