@@ -56,6 +56,90 @@
       });
 
     });
+    
+    $('#null-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/null",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              if(response.status == "success"){
+                $("#success-alert-text").html("Nulling machine.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+              }else{
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+              }
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+    
+    $('#powerdown-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/powerdown",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              if(response.status == "success"){
+                $("#success-alert-text").html("Powerdown mode succesfully started.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+              }else{
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+              }
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+    
+    $('#refill-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/refill",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              if(response.status == "success"){
+                $("#success-alert-text").html("Refill mode succesfully started.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+              }else{
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+              }
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
 
     $('#start-btn').click(function(e){
       e.preventDefault();
@@ -286,10 +370,17 @@
     <h1>Blackstripes Sketchy</h1>
 
       <div>
+	<b>Drawing:</b>
         <a id="start-btn" class="btn btn-success" role="button" href="">start</a>
         <a id="stop-btn" class="btn btn-danger" role="button" href="">stop</a>
         <a id="pause-btn" class="btn btn-warning" role="button" href="">pause</a>
         <a id="resume-btn" class="btn btn-default" role="button" href="">resume</a> 
+        
+	<b>&nbsp;&nbsp;&nbsp;&nbsp;Machine modes:</b>
+        <a id="null-btn" class="btn btn-primary" role="button" href="">null</a> 
+        <a id="powerdown-btn" class="btn btn-primary" role="button" href="">powerdown</a> 
+        <a id="refill-btn" class="btn btn-primary" role="button" href="">refill</a> 
+        
         <div style="float:right">
         <a id="status-btn" class="btn btn-default" role="button" href="" >status</a>
         <a id="reset-shm-btn" class="btn btn-default" role="button" href="" >reset</a>

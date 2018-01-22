@@ -295,6 +295,90 @@ static void handle_start_call(struct mg_connection *conn) {
 
 }
 
+static void handle_null_call(struct mg_connection *conn) {
+
+    if(!is_valid_job(conn)){
+        return;
+    }
+
+    DriverState *state = driverState();
+    if(state->statusCode == driverSatusCodeBusy){
+        mg_printf_data(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
+        return;
+    }
+
+    int status;
+    if(fork() == 0){ 
+        // Child process will return 0 from fork()
+        status = system("./sketchy-driver job/null.ini");
+        if(status != -1){
+            //do something?
+        }
+        exit(0);
+    }else{
+        // Parent process will return a non-zero value from fork()
+    }
+
+    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"null\"}");
+
+}
+
+static void handle_refill_call(struct mg_connection *conn) {
+
+    if(!is_valid_job(conn)){
+        return;
+    }
+
+    DriverState *state = driverState();
+    if(state->statusCode == driverSatusCodeBusy){
+        mg_printf_data(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
+        return;
+    }
+
+    int status;
+    if(fork() == 0){ 
+        // Child process will return 0 from fork()
+        status = system("./sketchy-driver job/refill.ini");
+        if(status != -1){
+            //do something?
+        }
+        exit(0);
+    }else{
+        // Parent process will return a non-zero value from fork()
+    }
+
+    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"refill\"}");
+
+}
+
+static void handle_powerdown_call(struct mg_connection *conn) {
+
+    if(!is_valid_job(conn)){
+        return;
+    }
+
+    DriverState *state = driverState();
+    if(state->statusCode == driverSatusCodeBusy){
+        mg_printf_data(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
+        return;
+    }
+
+    int status;
+    if(fork() == 0){ 
+        // Child process will return 0 from fork()
+        status = system("./sketchy-driver job/powerdown.ini");
+        if(status != -1){
+            //do something?
+        }
+        exit(0);
+    }else{
+        // Parent process will return a non-zero value from fork()
+    }
+
+    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"powerdown\"}");
+
+}
+
 static void handle_ini_call(struct mg_connection *conn){
     const char* json = Config_getJSON();
     mg_printf_data(conn, json);
@@ -353,6 +437,21 @@ static int ev_handler(struct mg_connection *conn, enum mg_event ev) {
 
             if(!strcmp(conn->uri, "/api/start")){
                 handle_start_call(conn);
+                return MG_TRUE;
+            }
+            
+            if(!strcmp(conn->uri, "/api/null")){
+                handle_null_call(conn);
+                return MG_TRUE;
+            }
+
+            if(!strcmp(conn->uri, "/api/refill")){
+                handle_refill_call(conn);
+                return MG_TRUE;
+            }
+            
+            if(!strcmp(conn->uri, "/api/powerdown")){
+                handle_powerdown_call(conn);
                 return MG_TRUE;
             }
 
