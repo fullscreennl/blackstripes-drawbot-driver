@@ -12,6 +12,7 @@
  * explicitly allow the browser to proceed.
  */
 
+#include "machine-settings.h"
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -26,16 +27,17 @@
 #include "mongoose/mongoose.h"
 #include "sketchy-ipc.h"
 #include "Config.h"
-#include "machine-settings.h"
 
 static const char *s_http_port = "8000";
 static const char *s_ssl_cert = "server.pem";
 static const char *s_ssl_key = "server.key";
 static struct mg_serve_http_opts s_http_server_opts;
 
+/**
 static const char *s_no_cache_header =
     "Cache-Control: max-age=0, post-check=0, "
     "pre-check=0, no-store, no-cache, must-revalidate\r\n";
+*/
 
 static int is_valid_job(struct mg_connection *conn){
     int w = Config_canvasWidth();
@@ -118,7 +120,7 @@ static int read_settings_ini(){
     return 1;
 }
 
-static int handle_settings_update(struct mg_connection *conn, struct http_message *hm){
+static int handle_settings_update(struct http_message *hm){
 
     //speeds
     char mindelay[100];
@@ -167,7 +169,7 @@ static int handle_settings_update(struct mg_connection *conn, struct http_messag
     return 1;
 }
 
-static int handle_job_upload(struct mg_connection *conn, struct http_message *hm) {
+static int handle_job_upload(struct http_message *hm) {
 
     char var_name[100], file_name[100];
     const char *data;
@@ -456,11 +458,11 @@ static void ev_handler(struct mg_connection *conn, int ev, void *p) {
 		struct http_message *hm = (struct http_message *) p;
                 
                 if(mg_vcmp(&hm->uri, "/handle_post_request") == 0){
-                    handle_job_upload(conn, hm);
+                    handle_job_upload(hm);
                 }
 
                 if(mg_vcmp(&hm->uri, "/handle_settings_update") == 0){
-                    handle_settings_update(conn, hm);
+                    handle_settings_update(hm);
                 }
 
                 if(mg_vcmp(&hm->uri, "/api/resetshm") == 0){
