@@ -31,7 +31,7 @@
 static const char *s_http_port = "8000";
 static const char *s_ssl_cert = "server.pem";
 static const char *s_ssl_key = "server.key";
-static struct mg_serve_http_opts s_http_server_opts;
+// static struct mg_serve_http_opts s_http_server_opts;
 
 /**
 static const char *s_no_cache_header =
@@ -567,8 +567,8 @@ int main(void) {
 
   // Set up HTTP server parameters
   mg_set_protocol_http_websocket(nc);
-  s_http_server_opts.document_root = ".";  // Serve current directory
-  s_http_server_opts.enable_directory_listing = "yes";
+  // s_http_server_opts.document_root = ".";  // Serve current directory
+  // s_http_server_opts.enable_directory_listing = "yes";
 
   for (;;) {
     mg_mgr_poll(&mgr, 1000);
