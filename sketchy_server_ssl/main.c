@@ -41,19 +41,19 @@ static int is_valid_job(struct mg_connection *conn){
     int w = Config_canvasWidth();
     int h = Config_canvasHeight();
     if (w > MAX_CANVAS_SIZE_X || h > MAX_CANVAS_SIZE_Y){
-        mg_printf_data(conn, "{ \"status\": \"failed\" , \"call\" : \"start-preview\" , \"msg\" : \"The drawing size is bigger than the machine can handle. (max size width x height is %3.2f x %3.2f)\"}", MAX_CANVAS_SIZE_X, MAX_CANVAS_SIZE_Y);
+        mg_printf(conn, "{ \"status\": \"failed\" , \"call\" : \"start-preview\" , \"msg\" : \"The drawing size is bigger than the machine can handle. (max size width x height is %3.2f x %3.2f)\"}", MAX_CANVAS_SIZE_X, MAX_CANVAS_SIZE_Y);
         return 0;
     }
 
     if(access("job/manifest.ini", F_OK ) == -1 ) {
-        mg_printf_data(conn, "{ \"status\": \"failed\" , \"call\" : \"start-preview\" , \"msg\" : \"The manifest.ini file is not found.\"}");
+        mg_printf(conn, "{ \"status\": \"failed\" , \"call\" : \"start-preview\" , \"msg\" : \"The manifest.ini file is not found.\"}");
         return 0;
     }
 
     char jobname[50];
     sprintf(jobname,"job/%s",Config_getJob());
     if(access(jobname, F_OK ) == -1 ) {
-        mg_printf_data(conn, "{ \"status\": \"failed\" , \"call\" : \"start-preview\" , \"msg\" : \"The drawing is not found, plase try to upload the drawing again.\"}");
+        mg_printf(conn, "{ \"status\": \"failed\" , \"call\" : \"start-preview\" , \"msg\" : \"The drawing is not found, plase try to upload the drawing again.\"}");
         return 0;
     }
 
@@ -62,7 +62,7 @@ static int is_valid_job(struct mg_connection *conn){
 
 static void handle_status_call(struct mg_connection *conn) {
     DriverState *state = driverState();
-    mg_printf_data(conn,   
+    mg_printf(conn,   
                 "{\"status\": \"success\", "
                             "\"call\" : \"status\", "
                             "\"name\": \"%s\", "
@@ -194,7 +194,7 @@ static int handle_job_upload(struct mg_connection *conn, struct http_message *hm
     //                                    var_name, sizeof(var_name),
     //                                    file_name, sizeof(file_name),
     //                                    &data, &data_len)) > 0) {
-        //mg_printf_data(conn, "var: %s, file_name: %s, size: %d bytes<br>",
+        //mg_printf(conn, "var: %s, file_name: %s, size: %d bytes<br>",
         //               var_name, file_name, data_len);
     //}
 
@@ -259,10 +259,10 @@ static int handle_job_upload(struct mg_connection *conn, struct http_message *hm
 static void handle_preview_status_call(struct mg_connection *conn){
     DriverState *state = driverState();
     if(state->statusCode == driverSatusCodeIdle){
-        mg_printf_data(conn, "{ \"status\": \"success\", \"call\" : \"preview-status\", \"msg\":\"DONE\"}");
+        mg_printf(conn, "{ \"status\": \"success\", \"call\" : \"preview-status\", \"msg\":\"DONE\"}");
         return;
     }else{
-        mg_printf_data(conn, "{ \"status\": \"success\", \"call\" : \"preview-status\", \"msg\":\"BUSSY\"}");
+        mg_printf(conn, "{ \"status\": \"success\", \"call\" : \"preview-status\", \"msg\":\"BUSSY\"}");
         return;
     }
 }
@@ -270,7 +270,7 @@ static void handle_preview_status_call(struct mg_connection *conn){
 static void handle_preview_abort_call(struct mg_connection *conn){
 
     setCommand("preview-abort",commandCodePreviewAbort,0.0,0);
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"preview-abort\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"preview-abort\"}");
 
 }
 
@@ -282,7 +282,7 @@ static void handle_preview_call(struct mg_connection *conn){
 
     DriverState *state = driverState();
     if(state->statusCode == driverSatusCodeBusy){
-        mg_printf_data(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
+        mg_printf(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
         return;
     }
 
@@ -298,7 +298,7 @@ static void handle_preview_call(struct mg_connection *conn){
         // Parent process will return a non-zero value from fork()
     }
 
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"preview\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"preview\"}");
 
 }
 
@@ -310,7 +310,7 @@ static void handle_start_call(struct mg_connection *conn) {
 
     DriverState *state = driverState();
     if(state->statusCode == driverSatusCodeBusy){
-        mg_printf_data(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
+        mg_printf(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
         return;
     }
 
@@ -326,7 +326,7 @@ static void handle_start_call(struct mg_connection *conn) {
         // Parent process will return a non-zero value from fork()
     }
 
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"start\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"start\"}");
 
 }
 
@@ -338,7 +338,7 @@ static void handle_null_call(struct mg_connection *conn) {
 
     DriverState *state = driverState();
     if(state->statusCode == driverSatusCodeBusy){
-        mg_printf_data(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
+        mg_printf(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
         return;
     }
 
@@ -354,7 +354,7 @@ static void handle_null_call(struct mg_connection *conn) {
         // Parent process will return a non-zero value from fork()
     }
 
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"null\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"null\"}");
 
 }
 
@@ -366,7 +366,7 @@ static void handle_refill_call(struct mg_connection *conn) {
 
     DriverState *state = driverState();
     if(state->statusCode == driverSatusCodeBusy){
-        mg_printf_data(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
+        mg_printf(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
         return;
     }
 
@@ -382,7 +382,7 @@ static void handle_refill_call(struct mg_connection *conn) {
         // Parent process will return a non-zero value from fork()
     }
 
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"refill\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"refill\"}");
 
 }
 
@@ -394,7 +394,7 @@ static void handle_powerdown_call(struct mg_connection *conn) {
 
     DriverState *state = driverState();
     if(state->statusCode == driverSatusCodeBusy){
-        mg_printf_data(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
+        mg_printf(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
         return;
     }
 
@@ -410,45 +410,45 @@ static void handle_powerdown_call(struct mg_connection *conn) {
         // Parent process will return a non-zero value from fork()
     }
 
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"powerdown\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"powerdown\"}");
 
 }
 
 static void handle_ini_call(struct mg_connection *conn){
     const char* json = Config_getJSON();
-    mg_printf_data(conn, json);
+    mg_printf(conn, json);
 }
 
 static void handle_pause_call(struct mg_connection *conn) {
     DriverState *state = driverState();
     if(state->statusCode != driverSatusCodeBusy){
-        mg_printf_data(conn, "{ \"status\": \"failed\" , \"call\" : \"pause\", \"msg\":\"Can not pause, machine is not running.\"}");
+        mg_printf(conn, "{ \"status\": \"failed\" , \"call\" : \"pause\", \"msg\":\"Can not pause, machine is not running.\"}");
         return;
     }
     setCommand("pause",commandCodePause,0.0,0);
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"pause\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"pause\"}");
 }
 
 static void handle_resume_call(struct mg_connection *conn) {
     DriverState *state = driverState();
     if(state->statusCode != driverStatusCodePaused){
-        mg_printf_data(conn, "{ \"status\": \"failed\" , \"call\" : \"resume\", \"msg\":\"Can not resume, machine is not paused.\"}");
+        mg_printf(conn, "{ \"status\": \"failed\" , \"call\" : \"resume\", \"msg\":\"Can not resume, machine is not paused.\"}");
         return;
     }
     setCommand("resume",commandCodeNone,0.0,0);
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"resume\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"resume\"}");
 }
 
 static void handle_stop_call(struct mg_connection *conn) {
     setCommand("stop",commandCodeStop,0.0,0);
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"stop\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"stop\"}");
 }
 
 static void handle_reset_call(struct mg_connection *conn) {
     system("ipcrm -M 1234");
     system("ipcrm -M 4567");
     shmCreate();
-    mg_printf_data(conn, "{ \"status\": \"success\" , \"call\" : \"reset\"}");
+    mg_printf(conn, "{ \"status\": \"success\" , \"call\" : \"reset\"}");
 }
 
 static void ev_handler(struct mg_connection *conn, int ev, void *p) {
@@ -520,22 +520,25 @@ static void ev_handler(struct mg_connection *conn, int ev, void *p) {
                 }
 
                 if(mg_vcmp(&hm->uri, "/job/manifest.ini") == 0){
-                    mg_send_file(conn, "job/manifest.ini", s_no_cache_header);
+                    // mg_send_file(conn, "job/manifest.ini", s_no_cache_header);
+                    mg_http_serve_file(conn, hm, "job/manifest.ini", mg_mk_str("text/plain"), mg_mk_str(""));
                 }
 
                 if(mg_vcmp(&hm->uri, "/preview-img") == 0){
-                    mg_send_file(conn, "preview_image.png", s_no_cache_header);
+                    // mg_send_file(conn, "preview_image.png", s_no_cache_header);
+                    mg_http_serve_file(conn, hm, "preview_image.png", mg_mk_str("text/plain"), mg_mk_str(""));
                 }
 
                 if(mg_vcmp(&hm->uri, "/job") == 0){
                     char jobname[50];
                     sprintf(jobname,"job/%s",Config_getJob());
                     if(access(jobname, F_OK ) != -1 ) {
-                        mg_send_file(conn, jobname, s_no_cache_header);
+                        // mg_send_file(conn, jobname, s_no_cache_header);
+                        mg_http_serve_file(conn, hm, jobname, mg_mk_str("text/plain"), mg_mk_str(""));
                     }
                 }
 
-                mg_send_file(conn, "index.html", s_no_cache_header);
+                mg_http_serve_file(conn, hm, "index.html", mg_mk_str("text/html"), mg_mk_str(""));
         }
 }
 

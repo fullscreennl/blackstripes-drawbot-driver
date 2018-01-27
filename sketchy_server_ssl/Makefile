@@ -11,7 +11,7 @@ endif
 # define the C compiler to use
 ifeq ($(MAKECMDGOALS),pi_cc)
 	CC = arm-linux-gnueabihf-gcc
-	MAIN = sketchy-server
+	MAIN = sketchy-server-ssl
 	PROG = main
 	CFLAGS = -W -Wall -Wno-missing-field-initializers -pthread -O0 $(CFLAGS_EXTRA) $(MACHINE_TYPE) $(MODULE_CFLAGS) -DMG_ENABLE_SSL -lssl -lcrypto
 	SOURCES = $(PROG).c mongoose/mongoose.c ../sketchy_shared/sketchy-ipc.c ../sketchy_driver/Config.c ../sketchy_driver/inih/ini.c
@@ -19,7 +19,7 @@ ifeq ($(MAKECMDGOALS),pi_cc)
 else
 	MAKECMDGOALS = default
 	CC = gcc
-	MAIN = sketchy-server
+	MAIN = sketchy-server-ssl
 	PROG = main
 	CFLAGS = -W -Wall -Wno-missing-field-initializers -pthread -O0 $(CFLAGS_EXTRA) $(MACHINE_TYPE) $(MODULE_CFLAGS) -DMG_ENABLE_SSL -lssl -lcrypto
 	SOURCES = $(PROG).c mongoose/mongoose.c ../sketchy_shared/sketchy-ipc.c ../sketchy_driver/Config.c ../sketchy_driver/inih/ini.c
@@ -41,7 +41,9 @@ clean:
 	rm -rf $(MAIN) *.exe *.dSYM *.obj *.exp *.o *.lib mongoose/*.o ../sketchy_shared/*.o ../sketchy_driver/inih/*.o ../sketchy_driver/Config.o
 
 install:
-	install sketchy-server ../build
+	install sketchy-server-ssl ../build
+	install server.pem ../build
+	install server.key ../build
 	install index.html ../build
 	install manifest.ini ../build/job
 
