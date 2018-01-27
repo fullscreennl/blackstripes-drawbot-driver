@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>RESTful API sketchy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" 
+        href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" 
+        integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" 
+        crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" 
+          integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" 
+          crossorigin="anonymous"></script>
+
+<script language="javascript" type="text/javascript">
+
+  var done = false;
+  function doPoll(url){
+      $.get(url, function(data) {
+          obj = JSON.parse(data);
+          $('#preview-frame').attr('src', $('#preview-frame').attr('src'));
+          if(obj.msg == "DONE"){
+            done = true;
+          }
+      });
+      if(!done){
+        setTimeout(function(){
+         doPoll(url);
+        }, 1500);
+      }
+  }
+
+  jQuery(function() {
+
+    $('#reset-shm-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/resetshm",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              $("#success-alert-text").html("Reset succesfully.");
+              $("#success-alert").attr('class', "alert alert-success")
+              $("#success-alert").show();
+              console.log(response);
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+    
+    $('#null-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/null",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              if(response.status == "success"){
+                $("#success-alert-text").html("Nulling machine.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+              }else{
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+              }
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+    
+    $('#powerdown-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/powerdown",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              if(response.status == "success"){
+                $("#success-alert-text").html("Powerdown mode succesfully started.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+              }else{
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+              }
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+    
+    $('#refill-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/refill",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              if(response.status == "success"){
+                $("#success-alert-text").html("Refill mode succesfully started.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+              }else{
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+              }
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+
+    $('#start-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/start",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              if(response.status == "success"){
+                $("#success-alert-text").html("Drawing succesfully started.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+              }else{
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+              }
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+
+    $('#preview-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/preview",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+
+              if(response.status == "success"){
+
+                $("#success-alert-text").html("Preview succesfully started.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+
+                $('#previewModal').modal('show');
+                done = false;
+                doPoll("/api/preview-status");
+
+              }else{
+
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+
+              }
+
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+
+    $('#stop-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/stop",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              $("#success-alert-text").html("Drawing stopped..");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+              console.log(response);
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+
+    $('#pause-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/pause",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              if(response.status == "success"){
+
+                $("#success-alert-text").html("Drawing paused, click resume to continue.");
+                $("#success-alert").attr('class', "alert alert-warning")
+                $("#success-alert").show();
+
+              }else{
+
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+
+              }
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+
+    $('#resume-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/resume",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+             var response = jQuery.parseJSON(data);
+             if(response.status == "success"){
+
+                $("#success-alert-text").html("Drawing succesfully resumed.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+
+              }else{
+
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+
+              }
+
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+
+    $('#status-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/status",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+             $("#success-alert-text").html(data);
+             $("#success-alert").attr('class', "alert alert-success")
+             $("#success-alert").show();
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+
+  });
+
+  function loadIni(){
+    $.ajax({
+           url: "/api/ini",
+           type: "GET",//type of posting the data
+           data: "",
+           success: function (data) {
+             var obj = jQuery.parseJSON( data );
+             $('#max_delay').val(obj.max_delay);
+             $('#min_delay').val(obj.min_delay);
+             $('#min_move_delay').val(obj.min_move_delay);
+             $('#canvas_width').val(obj.canvas_width);
+             $('#canvas_height').val(obj.canvas_height);
+             $('#pen_lookahead').val(obj.pen_lookahead);
+             $('#lookahead_mm').val(obj.lookahead_mm);
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-warning")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+  }
+
+  function abortPreview(){
+    $.ajax({
+           url: "/api/preview-abort",
+           type: "GET",//type of posting the data
+           data: "",
+           success: function (data) {
+             var obj = jQuery.parseJSON( data );
+             console.log(obj);
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-warning")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+  }
+
+
+</script>
+</head>
+<body onload="loadIni();">
+  <div class="container">
+
+
+    <h1>Blackstripes Sketchy</h1>
+
+      <div>
+	<b>Drawing:</b>
+        <a id="start-btn" class="btn btn-success" role="button" href="">start</a>
+        <a id="stop-btn" class="btn btn-danger" role="button" href="">stop</a>
+        <a id="pause-btn" class="btn btn-warning" role="button" href="">pause</a>
+        <a id="resume-btn" class="btn btn-default" role="button" href="">resume</a> 
+        
+	<b>&nbsp;&nbsp;&nbsp;&nbsp;Machine modes:</b>
+        <a id="null-btn" class="btn btn-primary" role="button" href="">null</a> 
+        <a id="powerdown-btn" class="btn btn-primary" role="button" href="">powerdown</a> 
+        <a id="refill-btn" class="btn btn-primary" role="button" href="">refill</a> 
+        
+        <div style="float:right">
+        <a id="status-btn" class="btn btn-default" role="button" href="" >status</a>
+        <a id="reset-shm-btn" class="btn btn-default" role="button" href="" >reset</a>
+      </div>
+      </div>
+
+      <hr/>
+
+      <div class = "alert alert-success" style='display:none' id='success-alert'>
+        <a href="#" class="close" aria-label="close">&times;</a>
+        <div id="success-alert-text"></div>
+      </div>
+
+      <div class="modal fade" tabindex="-1" role="dialog" id="myModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Machine settings.</h4>
+            </div>
+            <div class="modal-body">
+              <iframe style="width:100%;height:300px" src="/job/manifest.ini"></iframe>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+
+      <div class="modal fade" tabindex="-1" role="dialog" id="svgModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Current drawing.</h4>
+            </div>
+            <div class="modal-body">
+              <iframe style="width:100%;height:300px" src="/job"></iframe>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+
+      <div class="modal fade" tabindex="-1" role="dialog" id="previewModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Preview drawing.</h4>
+            </div>
+            <div class="modal-body">
+              <iframe id="preview-frame" style="width:100%;height:300px" src="/preview-img"></iframe>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" data-dismiss="modal">Abort</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+
+      <script>
+        $('.close').click(function() {
+          $('.alert').hide();
+        })
+
+        $('#previewModal').on('hidden.bs.modal', function () {
+            abortPreview();
+        })
+
+      </script>
+
+  <p>
+
+      <form class="form-horizontal" method="POST" action="/handle_post_request" enctype="multipart/form-data">
+        <div class="form-group">
+         <label class="col-sm-2 control-label" for="file">Select drawing:</label>
+         <div class="col-sm-10">
+         <input id="file" type="file" name="file" /> 
+       </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" value="Upload" class="btn btn-primary">Upload</button>
+          </div>
+        </div>
+
+
+      </form>
+
+
+    </p>
+
+    <hr/>
+<p>
+
+
+        <form class="form-horizontal" method="POST" action="/handle_settings_update" >
+                <div class="form-group">
+                   <label for="max_delay" class="col-sm-2 control-label" >MAX delay:</label>
+                    <div class="col-sm-10">
+                   <input id="max_delay" type="text" name="max_delay" class="form-control" /> 
+                   </div>
+                </div>
+                <div class="form-group">
+                   <label for="min_delay" class="col-sm-2 control-label" >MIN delay:</label>
+                    <div class="col-sm-10">
+                   <input id="min_delay" type="text" name="min_delay" class="form-control" /> 
+                   </div>
+                </div>
+                <div class="form-group">
+                   <label for="min_move_delay" class="col-sm-2 control-label" >MIN move delay:</label>
+                    <div class="col-sm-10">
+                   <input id="min_move_delay" type="text" name="min_move_delay" class="form-control" /> 
+                   </div>
+                </div>
+                <div class="form-group">
+                   <label for="canvas_width" class="col-sm-2 control-label" >Width</label>
+                    <div class="col-sm-10">
+                   <input id="canvas_width" type="text" name="canvas_width" class="form-control" /> 
+                   </div>
+                </div>
+                <div class="form-group">
+                   <label for="canvas_height" class="col-sm-2 control-label" >Height</label>
+                    <div class="col-sm-10">
+                   <input id="canvas_height" type="text" name="canvas_height" class="form-control" /> 
+                   </div>
+                </div>
+                <div class="form-group">
+                   <label for="pen_lookahead" class="col-sm-2 control-label" >Pen lookahead</label>
+                    <div class="col-sm-10">
+                   <input id="pen_lookahead" type="text" name="pen_lookahead" class="form-control" /> 
+                   </div>
+                </div>
+                <div class="form-group">
+                   <label for="lookahead_mm" class="col-sm-2 control-label" >Lookahead in mm</label>
+                   <div class="col-sm-10">
+                      <input id="lookahead_mm" type="text" name="lookahead_mm" class="form-control" /> 
+                    </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <a id="show-ini-btn" class="btn btn-default" role="button" href="" data-toggle="modal" data-target="#myModal">Show settings</a>
+                    <a id="show-svg-btn" class="btn btn-default" role="button" href="" data-toggle="modal" data-target="#svgModal">Show drawing</a>
+                    <a id="preview-btn" class="btn btn-default" role="button" href="">Generate preview</a> 
+                  </div>
+                </div>
+               
+        </form>
+
+      </p>
+
+      <!--  -->
+    </div>
+
+</body>
+</html>

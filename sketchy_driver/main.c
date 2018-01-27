@@ -213,7 +213,7 @@ void runSVG(){
 
     for (shape = image->shapes; shape != NULL; shape = shape->next) {
         for (path = shape->paths; path != NULL; path = path->next) {
-            int status = drawPath(path->pts, path->npts, path->closed, px * 1.5f);
+            int status = drawPath(path->pts, path->npts, path->closed, px * 0.1f);
             if(status == -1){
                 nsvgDelete(image);
                 Model_setPenMode(penModeManualUp);

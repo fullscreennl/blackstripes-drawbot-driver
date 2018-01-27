@@ -44,15 +44,15 @@ RT_TASK watchdog_task;
 */
 
 
-#define RIGHT_DIR RPI_V2_GPIO_P1_03
-#define PEN_DIR RPI_V2_GPIO_P1_05
+#define RIGHT_DIR RPI_V2_GPIO_P1_05
+#define PEN_DIR RPI_V2_GPIO_P1_16
 #define RIGHT_CLOCK RPI_V2_GPIO_P1_22 
 #define PEN_CLOCK RPI_V2_GPIO_P1_18
 #define LEFT_CLOCK RPI_V2_GPIO_P1_13
 #define LEFT_DIR RPI_V2_GPIO_P1_15
 #define CENTER_CLOCK RPI_V2_GPIO_P1_11
 #define CENTER_DIR RPI_V2_GPIO_P1_12
-#define SOLENOID RPI_V2_GPIO_P1_16
+#define SOLENOID RPI_V2_GPIO_P1_03
 
 #define CENTER_LIMIT RPI_V2_GPIO_P1_08
 #define LEFT_LIMIT RPI_V2_GPIO_P1_07
@@ -189,6 +189,10 @@ void watch(){
 
 #endif
 
+
+int penaction_counter = 0;
+int penaction_relax_factor = 5;
+
 void executeStep(Step *step){
 
     bool shouldDraw = (BOT->penMode == penModeManualDown);
@@ -245,14 +249,18 @@ void executeStep(Step *step){
     }
 
     if(solenoidstate != solenoid){
-
-        if(solenoid == solenoidStateUp){
-            bcm2835_gpio_write(SOLENOID, HIGH);
-        }else if(solenoid == solenoidStateDown){
-            bcm2835_gpio_write(SOLENOID, LOW);
-        }
-
-        solenoidstate = solenoid;
+	penaction_counter ++;
+	
+	if(penaction_counter > penaction_relax_factor){
+		
+		if(solenoid == solenoidStateUp){
+		    bcm2835_gpio_write(SOLENOID, HIGH);
+		}else if(solenoid == solenoidStateDown){
+		    bcm2835_gpio_write(SOLENOID, LOW);
+		}
+		penaction_counter = 0;
+		solenoidstate = solenoid;
+	}
 
     }
 
