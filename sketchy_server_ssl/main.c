@@ -12,7 +12,21 @@
  * explicitly allow the browser to proceed.
  */
 
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define NANOSVG_IMPLEMENTATION  // Expands implementation
+#include "nanosvg.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "mongoose/mongoose.h"
+#include "sketchy-ipc.h"
+#include "Config.h"
+#include "machine-settings.h"
 
 static const char *s_http_port = "8000";
 static const char *s_ssl_cert = "server.pem";
