@@ -454,94 +454,94 @@ static void handle_reset_call(struct mg_connection *conn) {
 }
 
 static void ev_handler(struct mg_connection *conn, int ev, void *p) {
-        if (ev == MG_EV_HTTP_REQUEST) {
-		struct http_message *hm = (struct http_message *) p;
-                
-                if(mg_vcmp(&hm->uri, "/handle_post_request") == 0){
-                    handle_job_upload(hm);
-                }
-
-                if(mg_vcmp(&hm->uri, "/handle_settings_update") == 0){
-                    handle_settings_update(hm);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/resetshm") == 0){
-                    handle_reset_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/start") == 0){
-                    handle_start_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/null") == 0){
-                    handle_null_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/refill") == 0){
-                    handle_refill_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/powerdown") == 0){
-                    handle_powerdown_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/preview") == 0){
-                    handle_preview_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/preview-status") == 0){
-                    handle_preview_status_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/preview-abort") == 0){
-                    handle_preview_abort_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/ini") == 0){
-                    handle_ini_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/stop") == 0){
-                    handle_stop_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/status") == 0){
-                    handle_status_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/pause") == 0){
-                    handle_pause_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/resume") == 0){
-                    handle_resume_call(conn);
-                }
-
-                if(mg_vcmp(&hm->uri, "/api/svg_url") == 0){
-                    handle_svg_call(conn, hm);
-                }
-
-                if(mg_vcmp(&hm->uri, "/job/manifest.ini") == 0){
-                    // mg_send_file(conn, "job/manifest.ini", s_no_cache_header);
-                    mg_http_serve_file(conn, hm, "job/manifest.ini", mg_mk_str("text/plain"), mg_mk_str(""));
-                }
-
-                if(mg_vcmp(&hm->uri, "/preview-img") == 0){
-                    // mg_send_file(conn, "preview_image.png", s_no_cache_header);
-                    mg_http_serve_file(conn, hm, "preview_image.png", mg_mk_str("text/plain"), mg_mk_str(""));
-                }
-
-                if(mg_vcmp(&hm->uri, "/job") == 0){
-                    char jobname[50];
-                    sprintf(jobname,"job/%s",Config_getJob());
-                    if(access(jobname, F_OK ) != -1 ) {
-                        // mg_send_file(conn, jobname, s_no_cache_header);
-                        mg_http_serve_file(conn, hm, jobname, mg_mk_str("text/plain"), mg_mk_str(""));
-                    }
-                }
-
-                mg_http_serve_file(conn, hm, "index.html", mg_mk_str("text/html"), mg_mk_str(""));
+    if (ev == MG_EV_HTTP_REQUEST) {
+        struct http_message *hm = (struct http_message *) p;
+        
+        if(mg_vcmp(&hm->uri, "/handle_post_request") == 0){
+            handle_job_upload(hm);
         }
+
+        if(mg_vcmp(&hm->uri, "/handle_settings_update") == 0){
+            handle_settings_update(hm);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/resetshm") == 0){
+            handle_reset_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/start") == 0){
+            handle_start_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/null") == 0){
+            handle_null_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/refill") == 0){
+            handle_refill_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/powerdown") == 0){
+            handle_powerdown_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/preview") == 0){
+            handle_preview_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/preview-status") == 0){
+            handle_preview_status_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/preview-abort") == 0){
+            handle_preview_abort_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/ini") == 0){
+            handle_ini_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/stop") == 0){
+            handle_stop_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/status") == 0){
+            handle_status_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/pause") == 0){
+            handle_pause_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/resume") == 0){
+            handle_resume_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/svg_url") == 0){
+            handle_svg_call(conn, hm);
+        }
+
+        if(mg_vcmp(&hm->uri, "/job/manifest.ini") == 0){
+            // mg_send_file(conn, "job/manifest.ini", s_no_cache_header);
+            mg_http_serve_file(conn, hm, "job/manifest.ini", mg_mk_str("text/plain"), mg_mk_str(""));
+        }
+
+        if(mg_vcmp(&hm->uri, "/preview-img") == 0){
+            // mg_send_file(conn, "preview_image.png", s_no_cache_header);
+            mg_http_serve_file(conn, hm, "preview_image.png", mg_mk_str("text/plain"), mg_mk_str(""));
+        }
+
+        if(mg_vcmp(&hm->uri, "/job") == 0){
+            char jobname[50];
+            sprintf(jobname,"job/%s",Config_getJob());
+            if(access(jobname, F_OK ) != -1 ) {
+                // mg_send_file(conn, jobname, s_no_cache_header);
+                mg_http_serve_file(conn, hm, jobname, mg_mk_str("text/plain"), mg_mk_str(""));
+            }
+        }
+
+        mg_http_serve_file(conn, hm, "index.html", mg_mk_str("text/html"), mg_mk_str(""));
+    }
 }
 
 
