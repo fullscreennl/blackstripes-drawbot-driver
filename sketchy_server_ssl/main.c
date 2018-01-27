@@ -84,10 +84,10 @@ static void update_config(){
     Config_write("job/manifest.ini");
 }
 
-static void handle_svg_call(struct mg_connection *conn) {
+static void handle_svg_call(struct mg_connection *conn, struct http_message *hm) {
     DriverState *state = driverState();
     char image_url[255];
-    mg_get_var(conn, "img_url", image_url, sizeof(image_url));
+    mg_get_http_var(&hm->body, "img_url", image_url, sizeof(image_url));
     char system_cmd[300] = "";
     sprintf(system_cmd,"wget -O job/job.svg %s",image_url); 
     system(system_cmd);
@@ -118,15 +118,15 @@ static int read_settings_ini(){
     return 1;
 }
 
-static int handle_settings_update(struct mg_connection *conn){
+static int handle_settings_update(struct mg_connection *conn, struct http_message *hm){
 
     //speeds
     char mindelay[100];
     char maxdelay[100];
     char minmovedelay[100];
-    mg_get_var(conn, "min_delay", mindelay, sizeof(mindelay));
-    mg_get_var(conn, "min_move_delay", minmovedelay, sizeof(minmovedelay));
-    mg_get_var(conn, "max_delay", maxdelay, sizeof(maxdelay));
+    mg_get_http_var(&hm->body, "min_delay", mindelay, sizeof(mindelay));
+    mg_get_http_var(&hm->body, "min_move_delay", minmovedelay, sizeof(minmovedelay));
+    mg_get_http_var(&hm->body, "max_delay", maxdelay, sizeof(maxdelay));
     if(maxdelay[0] != '\0'){
         Config_setMaxDelay(atoi(maxdelay));
     }
@@ -140,8 +140,8 @@ static int handle_settings_update(struct mg_connection *conn){
     //sizes
     char canvas_width[100];
     char canvas_height[100];
-    mg_get_var(conn, "canvas_width", canvas_width, sizeof(canvas_width));
-    mg_get_var(conn, "canvas_height", canvas_height, sizeof(canvas_height));
+    mg_get_http_var(&hm->body, "canvas_width", canvas_width, sizeof(canvas_width));
+    mg_get_http_var(&hm->body, "canvas_height", canvas_height, sizeof(canvas_height));
     if(canvas_width[0] != '\0'){
         Config_setCanvasWidth(atoi(canvas_width));
     }
@@ -151,35 +151,52 @@ static int handle_settings_update(struct mg_connection *conn){
 
     //pen speed strategy
     char pen_lookahead[100];
-    mg_get_var(conn, "pen_lookahead", pen_lookahead, sizeof(pen_lookahead));
+    mg_get_http_var(&hm->body, "pen_lookahead", pen_lookahead, sizeof(pen_lookahead));
     if(pen_lookahead[0] != '\0'){
         Config_setUsePenChangeInLookAhead(atoi(pen_lookahead));
     }
 
     //lookahead mm
     char lookahead_mm[100];
-    mg_get_var(conn, "lookahead_mm", lookahead_mm, sizeof(lookahead_mm));
+    mg_get_http_var(&hm->body, "lookahead_mm", lookahead_mm, sizeof(lookahead_mm));
     if(lookahead_mm[0] != '\0'){
         Config_setLookaheadMM(atoi(lookahead_mm));
     }
 
     Config_write("job/manifest.ini");
-    return MG_TRUE;
+    return 1;
 }
 
-static int handle_job_upload(struct mg_connection *conn) {
+static int handle_job_upload(struct mg_connection *conn, struct http_message *hm) {
 
-    const char *data;
-    int data_len, ofs = 0;
     char var_name[100], file_name[100];
+    const char *data;
+    size_t chunk_len, n1, n2;
 
-    while ((ofs = mg_parse_multipart(conn->content + ofs, conn->content_len - ofs,
-                                        var_name, sizeof(var_name),
-                                        file_name, sizeof(file_name),
-                                        &data, &data_len)) > 0) {
+    n1 = n2 = 0;
+    while ((n2 = mg_parse_multipart(hm->body.p + n1,
+				    hm->body.len - n1,
+				    var_name, sizeof(var_name),
+				    file_name, sizeof(file_name),
+				    &data, &chunk_len)) > 0) {
+          printf("var: %s, file_name: %s, size: %d, data: [%.*s]\n",
+	         var_name, file_name, (int) chunk_len,
+	         (int) chunk_len, data);
+       n1 += n2;
+    }
+
+	
+    //const char *data;
+    //int data_len, ofs = 0;
+    //char var_name[100], file_name[100];
+
+    //while ((ofs = mg_parse_multipart(conn->content + ofs, conn->content_len - ofs,
+    //                                    var_name, sizeof(var_name),
+    //                                    file_name, sizeof(file_name),
+    //                                    &data, &data_len)) > 0) {
         //mg_printf_data(conn, "var: %s, file_name: %s, size: %d bytes<br>",
         //               var_name, file_name, data_len);
-    }
+    //}
 
     //check if extension is either .svg // .lua // .ini // else .sketchy
     //.svg rename to job.svg
@@ -204,7 +221,7 @@ static int handle_job_upload(struct mg_connection *conn) {
          if (strcmp(check_ini, ext+1)==0){
 
             FILE *fp = fopen("job/manifest.ini","w");
-            fwrite(data, 1, data_len, fp);
+            fwrite(data, 1, chunk_len, fp);
             fclose(fp);
 
             read_settings_ini();
@@ -212,7 +229,7 @@ static int handle_job_upload(struct mg_connection *conn) {
          }else if(strcmp(check_svg, ext+1)==0){
 
             FILE *fp = fopen("job/job.svg","w");
-            fwrite(data, 1, data_len, fp);
+            fwrite(data, 1, chunk_len, fp);
             fclose(fp);
 
             update_config();
@@ -220,7 +237,7 @@ static int handle_job_upload(struct mg_connection *conn) {
          }else if(strcmp(check_lua, ext+1)==0){
 
             FILE *fp = fopen("job/job.lua","w");
-            fwrite(data, 1, data_len, fp);
+            fwrite(data, 1,chunk_len, fp);
             fclose(fp);
             Config_setLuaJob("job.lua");
             Config_write("job/manifest.ini");
@@ -229,14 +246,14 @@ static int handle_job_upload(struct mg_connection *conn) {
 
             system("exec rm -r job/*");
             FILE *fp = fopen("job/sketchy-job.tar.gz","w");
-            fwrite(data, 1, data_len, fp);
+            fwrite(data, 1,chunk_len, fp);
             fclose(fp);
             system("tar -xf job/sketchy-job.tar.gz -C job");
             system("exec rm job/sketchy-job.tar.gz");
 
          }
     }
-    return MG_TRUE;
+    return 1;
 }
 
 static void handle_preview_status_call(struct mg_connection *conn){
@@ -435,114 +452,91 @@ static void handle_reset_call(struct mg_connection *conn) {
 }
 
 static void ev_handler(struct mg_connection *conn, int ev, void *p) {
-
-    switch (ev) {
         if (ev == MG_EV_HTTP_REQUEST) {
-            case MG_AUTH: return MG_TRUE;
-            case MG_REQUEST:
-
-                if(!strcmp(conn->uri, "/handle_post_request")){
-                    handle_job_upload(conn);
+		struct http_message *hm = (struct http_message *) p;
+                
+                if(mg_vcmp(&hm->uri, "/handle_post_request") == 0){
+                    handle_job_upload(conn, hm);
                 }
 
-                if(!strcmp(conn->uri, "/handle_settings_update")){
-                    handle_settings_update(conn);
+                if(mg_vcmp(&hm->uri, "/handle_settings_update") == 0){
+                    handle_settings_update(conn, hm);
                 }
 
-                if(!strcmp(conn->uri, "/api/resetshm")){
+                if(mg_vcmp(&hm->uri, "/api/resetshm") == 0){
                     handle_reset_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/start")){
+                if(mg_vcmp(&hm->uri, "/api/start") == 0){
                     handle_start_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/null")){
+                if(mg_vcmp(&hm->uri, "/api/null") == 0){
                     handle_null_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/refill")){
+                if(mg_vcmp(&hm->uri, "/api/refill") == 0){
                     handle_refill_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/powerdown")){
+                if(mg_vcmp(&hm->uri, "/api/powerdown") == 0){
                     handle_powerdown_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/preview")){
+                if(mg_vcmp(&hm->uri, "/api/preview") == 0){
                     handle_preview_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/preview-status")){
+                if(mg_vcmp(&hm->uri, "/api/preview-status") == 0){
                     handle_preview_status_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/preview-abort")){
+                if(mg_vcmp(&hm->uri, "/api/preview-abort") == 0){
                     handle_preview_abort_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/ini")){
+                if(mg_vcmp(&hm->uri, "/api/ini") == 0){
                     handle_ini_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/stop")){
+                if(mg_vcmp(&hm->uri, "/api/stop") == 0){
                     handle_stop_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/status")){
+                if(mg_vcmp(&hm->uri, "/api/status") == 0){
                     handle_status_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/pause")){
+                if(mg_vcmp(&hm->uri, "/api/pause") == 0){
                     handle_pause_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/resume")){
+                if(mg_vcmp(&hm->uri, "/api/resume") == 0){
                     handle_resume_call(conn);
-                    return MG_TRUE;
                 }
 
-                if(!strcmp(conn->uri, "/api/svg_url")){
-                    handle_svg_call(conn);
-                    return MG_TRUE;
+                if(mg_vcmp(&hm->uri, "/api/svg_url") == 0){
+                    handle_svg_call(conn, hm);
                 }
 
-                if(!strcmp(conn->uri, "/job/manifest.ini")){
+                if(mg_vcmp(&hm->uri, "/job/manifest.ini") == 0){
                     mg_send_file(conn, "job/manifest.ini", s_no_cache_header);
-                    return MG_MORE;
                 }
 
-                if(!strcmp(conn->uri, "/preview-img")){
+                if(mg_vcmp(&hm->uri, "/preview-img") == 0){
                     mg_send_file(conn, "preview_image.png", s_no_cache_header);
-                    return MG_MORE;
                 }
 
-                if(!strcmp(conn->uri, "/job")){
+                if(mg_vcmp(&hm->uri, "/job") == 0){
                     char jobname[50];
                     sprintf(jobname,"job/%s",Config_getJob());
                     if(access(jobname, F_OK ) != -1 ) {
                         mg_send_file(conn, jobname, s_no_cache_header);
                     }
-                    return MG_MORE;
                 }
 
                 mg_send_file(conn, "index.html", s_no_cache_header);
-                return MG_MORE;
-            default: return MG_FALSE;
         }
-    }
 }
 
 
