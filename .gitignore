@@ -12,6 +12,10 @@ sketchy_driver/lua-5.2.3/luac
 sketchy_driver/test
 sketchy_driver/tests/test_image.png
 
+# vim
+*.swp
+*.swo
+
 # Object files
 *.o
 *.ko
