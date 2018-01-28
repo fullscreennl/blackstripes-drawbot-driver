@@ -46,6 +46,12 @@ install:
 	install server.key ../build
 	install index.html ../build
 	install manifest.ini ../build/job
+	install null.ini ../build/job
+	install refill.ini ../build/job
+	install powerdown.ini ../build/job
+	install autonull.lua ../build/job
+	install refill.lua ../build/job
+	install powerdown.lua ../build/job
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^
