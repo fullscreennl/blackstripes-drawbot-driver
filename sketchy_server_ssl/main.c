@@ -539,6 +539,11 @@ static void ev_handler(struct mg_connection *conn, int ev, void *p) {
         }
 
         if(mg_vcmp(&hm->uri, "/") == 0){
+	    char user[100], password[100];
+	    size_t user_len, pass_len;
+            int status = mg_get_http_basic_auth(hm, user, user_len, password, pass_len);
+            printf("%s\n", user);
+            printf("%s\n", password);
             mg_http_serve_file(conn, hm, "index.html", mg_mk_str("text/html"), mg_mk_str(""));
 	}
     }
