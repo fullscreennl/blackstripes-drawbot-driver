@@ -124,7 +124,7 @@ static int read_settings_ini(){
     return 1;
 }
 
-static int handle_settings_update(struct http_message *hm){
+static int handle_settings_update(struct mg_connection *conn, struct http_message *hm){
 
     //speeds
     char mindelay[100];
@@ -170,6 +170,7 @@ static int handle_settings_update(struct http_message *hm){
     }
 
     Config_write("job/manifest.ini");
+    mg_http_send_redirect(conn, 302, mg_mk_str("/"), mg_mk_str(NULL));
     return 1;
 }
 
@@ -459,7 +460,7 @@ static void ev_handler(struct mg_connection *conn, int ev, void *p) {
         }
 
         if(mg_vcmp(&hm->uri, "/handle_settings_update") == 0){
-            handle_settings_update(hm);
+            handle_settings_update(conn, hm);
         }
 
         if(mg_vcmp(&hm->uri, "/api/resetshm") == 0){
