@@ -46,6 +46,10 @@ static void bs_printf(struct mg_connection *conn, const char* message){
     return;
 }
 
+static void unauthorized(struct mg_connection *conn){
+    mg_printf(conn, "%s", "HTTP/1.1 401 Unauthorizedi\r\nDate: Wed, 21 Oct 2015 07:28:00 GMT\r\nWWW-Authenticate: Basic realm=\"Access to drawluxx\"\r\n\r\n"); 
+}
+
 static int is_valid_job(struct mg_connection *conn){
     int w = Config_canvasWidth();
     int h = Config_canvasHeight();
@@ -455,6 +459,24 @@ static void ev_handler(struct mg_connection *conn, int ev, void *p) {
     if (ev == MG_EV_HTTP_REQUEST) {
         struct http_message *hm = (struct http_message *) p;
         
+	if(mg_vcmp(&hm->uri, "/") == 0){
+	    char user[100] = "";
+            char password[100] = "";
+	    size_t user_len, pass_len;
+            int status = mg_get_http_basic_auth(hm, user, user_len, password, pass_len);
+            if(status == -1){
+		unauthorized(conn);
+                return;
+            }else{
+                if(strcmp(user, "luxx_drawbot") == 0 && strcmp(password, "mannheim123!") == 0){
+                    // credentials ok continue
+		}else{
+		    unauthorized(conn);
+                    return;
+                }
+            }
+	}
+        
         if(mg_vcmp(&hm->uri, "/handle_post_request") == 0){
             handle_job_upload(conn, hm);
         }
@@ -539,12 +561,7 @@ static void ev_handler(struct mg_connection *conn, int ev, void *p) {
         }
 
         if(mg_vcmp(&hm->uri, "/") == 0){
-	    char user[100], password[100];
-	    size_t user_len, pass_len;
-            int status = mg_get_http_basic_auth(hm, user, user_len, password, pass_len);
-            printf("%s\n", user);
-            printf("%s\n", password);
-            mg_http_serve_file(conn, hm, "index.html", mg_mk_str("text/html"), mg_mk_str(""));
+             mg_http_serve_file(conn, hm, "index.html", mg_mk_str("text/html"), mg_mk_str(""));
 	}
     }
 }
