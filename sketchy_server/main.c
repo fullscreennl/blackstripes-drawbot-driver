@@ -531,7 +531,7 @@ int main(void) {
 
     read_settings_ini();
     
-    shmCreate();
+    shmcreate();
 
     struct mg_server *server;
 
