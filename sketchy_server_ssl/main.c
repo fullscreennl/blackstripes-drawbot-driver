@@ -48,6 +48,9 @@ static void bs_printf(struct mg_connection *conn, const char* message){
 
 static void unauthorized(struct mg_connection *conn){
     mg_printf(conn, "%s", "HTTP/1.1 401 Unauthorizedi\r\nDate: Wed, 21 Oct 2015 07:28:00 GMT\r\nWWW-Authenticate: Basic realm=\"Access to drawluxx\"\r\n\r\n"); 
+    mg_printf_http_chunk(conn, "Unauthorized");
+    mg_send_http_chunk(conn, "", 0);
+    return;
 }
 
 static int is_valid_job(struct mg_connection *conn){
