@@ -462,23 +462,22 @@ static void ev_handler(struct mg_connection *conn, int ev, void *p) {
     if (ev == MG_EV_HTTP_REQUEST) {
         struct http_message *hm = (struct http_message *) p;
         
-	if(mg_vcmp(&hm->uri, "/") == 0){
-	    char user[100] = "";
-            char password[100] = "";
-	    size_t user_len, pass_len;
-            int status = mg_get_http_basic_auth(hm, user, user_len, password, pass_len);
-            if(status == -1){
-		unauthorized(conn);
-                return;
-            }else{
-                if(strcmp(user, "luxx_drawbot") == 0 && strcmp(password, "mannheim123!") == 0){
-                    // credentials ok continue
-		}else{
-		    unauthorized(conn);
-                    return;
-                }
-            }
-	}
+        char user[100] = "";
+        char password[100] = "";
+        size_t user_len = 0;
+        size_t pass_len = 0;
+        int status = mg_get_http_basic_auth(hm, user, user_len, password, pass_len);
+        if(status == -1){
+	    unauthorized(conn);
+	    return;
+        }else{
+	    if(strcmp(user, "luxx_drawbot") == 0 && strcmp(password, "mannheim123!") == 0){
+	        // credentials ok continue
+	    }else{
+	        unauthorized(conn);
+	        return;
+	    }
+        }
         
         if(mg_vcmp(&hm->uri, "/handle_post_request") == 0){
             handle_job_upload(conn, hm);
