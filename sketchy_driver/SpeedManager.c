@@ -120,8 +120,8 @@ void SpeedManager_compute(SpeedManager *sm){
     }
     if(round(max) != round(sm->max)){
         sm->max = max;
-        //if((penChangeAhead && sm->usePenChangeInLookAhead) || headMovementAhead){
-        if((penChangeAhead && sm->usePenChangeInLookAhead)){
+        if((penChangeAhead && sm->usePenChangeInLookAhead) || headMovementAhead){
+        //if((penChangeAhead && sm->usePenChangeInLookAhead)){
             sm->targetDelay = Config_maxDelay();
             sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
             // printf("delay %i\n", sm->delayStep);
