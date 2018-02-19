@@ -52,6 +52,10 @@ install:
 	install autonull.lua ../build/job
 	install refill.lua ../build/job
 	install powerdown.lua ../build/job
+	install up.lua ../build/job
+	install up.ini ../build/job
+	install down.lua ../build/job
+	install down.ini ../build/job
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^
