@@ -17,11 +17,13 @@ ifeq ($(MAKECMDGOALS),pi_cc)
 	SOURCES = $(PROG).c mongoose/mongoose.c ../sketchy_shared/sketchy-ipc.c ../sketchy_driver/Config.c ../sketchy_driver/inih/ini.c
 	INCLUDES = -I../sketchy_shared -I../sketchy_driver -I../sketchy_driver/inih -I../sketchy_driver/nanosvg -I/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/include
 else
+	CPPFLAGS = -I/usr/local/opt/openssl/include
+	LDFLAGS = -L/usr/local/opt/openssl/lib
 	MAKECMDGOALS = default
 	CC = gcc
 	MAIN = sketchy-server-ssl
 	PROG = main
-	CFLAGS = -W -Wall -Wno-missing-field-initializers -pthread -O0 $(CFLAGS_EXTRA) $(MACHINE_TYPE) $(MODULE_CFLAGS) -DMG_ENABLE_SSL -lssl -lcrypto
+	CFLAGS = -W -Wall -Wno-missing-field-initializers -pthread -O0 $(LDFLAGS) $(CPPFLAGS) $(CFLAGS_EXTRA) $(MACHINE_TYPE) $(MODULE_CFLAGS) -DMG_ENABLE_SSL -lssl -lcrypto
 	SOURCES = $(PROG).c mongoose/mongoose.c ../sketchy_shared/sketchy-ipc.c ../sketchy_driver/Config.c ../sketchy_driver/inih/ini.c
 	INCLUDES = -I../sketchy_shared -I../sketchy_driver -I../sketchy_driver/inih -I../sketchy_driver/nanosvg 
 endif
@@ -52,10 +54,8 @@ install:
 	install autonull.lua ../build/job
 	install refill.lua ../build/job
 	install powerdown.lua ../build/job
-	install up.lua ../build/job
-	install up.ini ../build/job
-	install down.lua ../build/job
-	install down.ini ../build/job
+	install pen_adjust.lua ../build/job
+	install pen_adjust.ini ../build/job
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^
