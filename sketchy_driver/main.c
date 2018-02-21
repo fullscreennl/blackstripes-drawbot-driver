@@ -251,6 +251,7 @@ int main(int argc, char *argv[]){
 
     // 1) load the config
     Config_load(inifile);
+    int exitStatus = Config_exitStatus();
     updateDriverState(driverSatusCodeBusy,inifile,"DRIVER_STATE_BUSSY");
 
     int status;
@@ -266,7 +267,11 @@ int main(int argc, char *argv[]){
     if(state->statusCode < 3){
         // 4) tell the server we are done if we dont have errors.
         setCommand("none",commandCodeNone,0.0,0);
-        updateDriverState(driverSatusCodeIdle,"","DRIVER_STATE_IDLE");
+        if(exitStatus != driverSatusCodeIdle){
+            updateDriverState(exitStatus,"","DRIVER_STATE_NOT_NULLED");
+	}else{
+            updateDriverState(driverSatusCodeIdle,"","DRIVER_STATE_IDLE");
+        }
     }else{
         printf("ERROR code: %i , %s\n",state->statusCode, state->name);
     }

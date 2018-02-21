@@ -7,6 +7,7 @@ typedef enum {
     driverStatusCodePaused = 3,
     driverStateOutOfBoundsError = 4,
     driverStateNoDataFoundInSVGError = 5,
+    driverSatusCodeNotNulled = 6,
 }DriverSatusCode;
 
 typedef struct DriverState{

@@ -317,6 +317,11 @@ static void handle_start_call(struct mg_connection *conn) {
         bs_printf(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
         return;
     }
+    
+    if(state->statusCode != driverSatusCodeIdle){
+        bs_printf(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"#walluxx is not ready!\"}");
+        return;
+    }
 
     int status;
     if(fork() == 0){ 
