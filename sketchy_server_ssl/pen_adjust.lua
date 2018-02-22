@@ -16,6 +16,7 @@ while true do
         c = 10
         while c > 0 do
             print("pen up!")
+            moveTo(100.0,1000.0)
             sleep(1)
             c = c - 1
         end
@@ -26,6 +27,7 @@ while true do
         c = 10
         while c > 0 do
             print("pen down!")
+            moveTo(0.0,1000.0)
             sleep(1)
             c = c - 1
         end
