@@ -339,6 +339,30 @@ static void handle_start_call(struct mg_connection *conn) {
 
 }
 
+static void handle_adjustmarker_call(struct mg_connection *conn) {
+
+    DriverState *state = driverState();
+    if(state->statusCode == driverSatusCodeBusy){
+        bs_printf(conn, "{ \"status\": \"failed\", \"call\" : \"start\", \"msg\":\"Sketchy is busy\"}");
+        return;
+    }
+
+    int status;
+    if(fork() == 0){ 
+        // Child process will return 0 from fork()
+        status = system("./sketchy-driver job/pen_adjust.ini");
+        if(status != -1){
+            //do something?
+        }
+        exit(0);
+    }else{
+        // Parent process will return a non-zero value from fork()
+    }
+
+    bs_printf(conn, "{ \"status\": \"success\" , \"call\" : \"null\"}");
+    mg_send_http_chunk(conn, "", 0);
+}
+
 static void handle_null_call(struct mg_connection *conn) {
 
     //if(!is_valid_job(conn)){
@@ -502,6 +526,10 @@ static void ev_handler(struct mg_connection *conn, int ev, void *p) {
 
         if(mg_vcmp(&hm->uri, "/api/null") == 0){
             handle_null_call(conn);
+        }
+
+        if(mg_vcmp(&hm->uri, "/api/adjustmarker") == 0){
+            handle_adjustmarker_call(conn);
         }
 
         if(mg_vcmp(&hm->uri, "/api/refill") == 0){

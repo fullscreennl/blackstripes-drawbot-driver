@@ -17,8 +17,6 @@ ifeq ($(MAKECMDGOALS),pi_cc)
 	SOURCES = $(PROG).c mongoose/mongoose.c ../sketchy_shared/sketchy-ipc.c ../sketchy_driver/Config.c ../sketchy_driver/inih/ini.c
 	INCLUDES = -I../sketchy_shared -I../sketchy_driver -I../sketchy_driver/inih -I../sketchy_driver/nanosvg -I/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/include
 else
-	CPPFLAGS = -I/usr/local/opt/openssl/include
-	LDFLAGS = -L/usr/local/opt/openssl/lib
 	MAKECMDGOALS = default
 	CC = gcc
 	MAIN = sketchy-server-ssl

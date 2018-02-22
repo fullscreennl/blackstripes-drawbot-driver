@@ -56,7 +56,35 @@
       });
 
     });
-    
+
+    $('#pen-adjust-btn').click(function(e){
+      e.preventDefault();
+      $.ajax({
+           url: "/api/adjustmarker",
+           type: "POST",//type of posting the data
+           data: "",
+           success: function (data) {
+              var response = jQuery.parseJSON(data);
+              if(response.status == "success"){
+                $("#success-alert-text").html("Entering marjer adjustment mode.");
+                $("#success-alert").attr('class', "alert alert-success")
+                $("#success-alert").show();
+              }else{
+                $("#success-alert-text").html(response.msg);
+                $("#success-alert").attr('class', "alert alert-danger")
+                $("#success-alert").show();
+              }
+           },
+           error: function(xhr, ajaxOptions, thrownError){
+              $("#success-alert-text").html("An unknown error has occurred.");
+              $("#success-alert").attr('class', "alert alert-danger")
+              $("#success-alert").show();
+           },
+           timeout : 15000//timeout of the ajax call
+      });
+
+    });
+
     $('#null-btn').click(function(e){
       e.preventDefault();
       $.ajax({
@@ -380,7 +408,8 @@
         <a id="null-btn" class="btn btn-primary" role="button" href="">null</a> 
         <a id="powerdown-btn" class="btn btn-primary" role="button" href="">powerdown</a> 
         <a id="refill-btn" class="btn btn-primary" role="button" href="">refill</a> 
-        
+        <a id="pen-adjust-btn" class="btn btn-primary" role="button" href="">adjust marker</a> 
+ 
         <div style="float:right">
         <a id="status-btn" class="btn btn-default" role="button" href="" >status</a>
         <a id="reset-shm-btn" class="btn btn-default" role="button" href="" >reset</a>
