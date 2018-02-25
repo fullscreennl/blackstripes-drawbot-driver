@@ -375,17 +375,28 @@ int autoNull(mode){
 
     // 0 = nulling
     if (mode == 0){
-        int num_steps = NULL_DEGREES_LEFT / ANGLE_PER_STEP; 
+        int num_steps = MAX(NULL_DEGREES_LEFT, NULL_DEGREES_RIGHT) / ANGLE_PER_STEP; 
+        int left_steps = NULL_DEGREES_LEFT/ANGLE_PER_STEP;
+        int right_steps = NULL_DEGREES_RIGHT/ANGLE_PER_STEP;
         int num_steps_init = num_steps;
         HorizontalMovementDir h = horizontalMovementDirRight;
+        StepperMotorDir l = stepperMotorDirUp;
+        StepperMotorDir r = stepperMotorDirUp;
         while(num_steps--){
             if(num_steps < (num_steps_init - 12800)){
                 h = horizontalMovementDirNone;
             }
-            Step_update(step, stepperMotorDirUp, stepperMotorDirUp, h);
+            if(num_steps < (num_steps_init - left_steps)){
+ 		l = stepperMotorDirNone;	
+            }
+            if(num_steps < (num_steps_init - right_steps)){
+ 		r = stepperMotorDirNone;	
+            }
+            Step_update(step, l, r, h);
             executeStep(step);
         }
     }
+
     // 1 = refill
     if (mode == 1){
         int num_steps = NULL_DEGREES_LEFT / ANGLE_PER_STEP; 

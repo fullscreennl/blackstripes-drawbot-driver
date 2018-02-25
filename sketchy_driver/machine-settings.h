@@ -29,7 +29,7 @@
 #define MAX_CANVAS_SIZE_X 10000.0
 #define MAX_CANVAS_SIZE_Y 2000.0
 #define BOT_REPOSITION_THRESHOLD 500.0 // can not be higher (it will destroy the limit switches)
-#define NULL_DEGREES_LEFT 95
-#define NULL_DEGREES_RIGHT 95
+#define NULL_DEGREES_LEFT 94.2
+#define NULL_DEGREES_RIGHT 94.0
 
 #endif
