@@ -14,40 +14,49 @@ typedef enum solenoidState{
     solenoidStateDown = 1
 }SolenoidState;
 
-typedef enum penMode{  
-	penModeImage = 1,
-	penModeManualUp = 2,
-	penModeManualDown = 3
+typedef enum penMode{
+    penModeImage = 1,
+    penModeManualUp = 2,
+    penModeManualDown = 3
 }PenMode;
 
 typedef struct FSBotState{
-	int retainCount;
-	char *type;
-	Point *home;
-	Point *currentLocation;
-	SpeedManager *speedManager;
-	int leftsteps;
-	int rightsteps;
-	int delay;
-	void (*executeStepCallback)(Step *step);
-	PenMode penMode;
-	PenMode scheduledPenMode;
+    float currentCenter;
+    float center;
+    int retainCount;
+    char *type;
+    Point *home;
+    Point *currentLocation;
+    SpeedManager *speedManager;
+    int centersteps;
+    int leftsteps;
+    int rightsteps;
+    int delay;
+    void (*executeStepCallback)(Step *step);
+    PenMode penMode;
+    PenMode scheduledPenMode;
 }BotState;
 
 BotState *BOT;
 
-void SpeedManager_callback(float x, float y, int delay, int cursor,int penMode);
+void SpeedManager_callback(float x, float y, float c, int delay, int cursor,int penMode);
 void Model_createInstance();
-void Model_addStep(int left, int right);
+void Model_addStep(int left, int right, int center);
 void Model_logState();
 void Model_release();
 void Model_retain();
-void Model_moveTo(Point *dest);
+void Model_moveTo(float x, float y);
 void Model_moveHome();
 void Model_setExecuteStepCallback(void (*executeStepCallback)(Step *step));
 void Model_setPenMode(PenMode mode);
 void Model_finish();
+void Model_null();
 void Model_resume();
+float Model_getCenter();
+void Model_setCenter(float newCenter);
+float Model_getLeftShoulderX();
+float Model_getRightShoulderX();
+void log_time();
 
 void report_memory(int id);
 

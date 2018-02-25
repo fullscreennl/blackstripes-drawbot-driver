@@ -11,7 +11,7 @@ static char* iniFileName;
 static int Config_handler(void* user, const char* section, const char* name,
                    const char* value)
 {
-    
+
     Config* pconfig = (Config*)user;
     pconfig->_lua = "";
     pconfig->_svg = "";
@@ -30,9 +30,13 @@ static int Config_handler(void* user, const char* section, const char* name,
 
         pconfig->lookaheadMM = atoi(value);
 
-    } else if (MATCH("machine_settings", "canvas_width")) {
+    }else if (MATCH("machine_settings", "canvas_width")) {
 
         pconfig->canvasWidth = atoi(value);
+
+    }else if (MATCH("machine_settings", "exit_status")) {
+
+        pconfig->exitStatus = atoi(value);
 
     }else if (MATCH("machine_settings", "marker_nib")) {
 
@@ -132,6 +136,13 @@ int Config_usePenChangeInLookAhead(){
         return 0;
     }
     return config.usePenChangeInLookAhead;
+}
+
+int Config_exitStatus(){
+    if(!config.exitStatus){
+        return 2;
+    }
+    return config.exitStatus;
 }
 
 int Config_maxDelay(){
@@ -295,14 +306,15 @@ void Config_load(char *inifilename){
     iniFileName = inifilename;
 
 
-    printf("Config loaded from '%s': version=%s, name=%s, email=%s w=%i h=%i nib=%f\n", 
+    printf("Config loaded from '%s': version=%s, name=%s, email=%s w=%i h=%i nib=%f exit=%i\n", 
         inifilename,
         config.versionString, 
         config.name, 
         config.email,
         config.canvasWidth,
         config.canvasHeight,
-        config.nibSize);
+        config.nibSize,
+        config.exitStatus);
 
     // printf("BASE %s\n", basePath);
     // printf("svg %s\n", Config_getSVGName());

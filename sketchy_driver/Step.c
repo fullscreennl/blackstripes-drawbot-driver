@@ -11,18 +11,20 @@
 #include "Step.h"
 #include "FSObject.h"
 
-Step *Step_alloc(StepperMotorDir leftengine, StepperMotorDir rightengine){
+Step *Step_alloc(StepperMotorDir leftengine, StepperMotorDir rightengine, HorizontalMovementDir horengine){
     Step *obj = (Step *) malloc(sizeof(Step));
     obj->leftengine = leftengine;
     obj->rightengine = rightengine;
+    obj->horengine = horengine;
     obj->retainCount = 1;
     obj->type = "Step";
     return obj;
 }
 
-Step *Step_update(Step *obj,StepperMotorDir leftengine, StepperMotorDir rightengine){
+Step *Step_update(Step *obj,StepperMotorDir leftengine, StepperMotorDir rightengine, HorizontalMovementDir horengine){
     obj->leftengine = leftengine;
     obj->rightengine = rightengine;
+    obj->horengine = horengine;
     return obj;
 }
 

@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "../Preview.h"
+#include "../bool.h"
 
 #ifndef PREVIEW_TEST_H
 #define PREVIEW_TEST_H
@@ -7,10 +8,10 @@
 void Preview_test(){
 
     Preview *pr = Preview_alloc(1000,1000,"tests/test_image.png",Config_maxDelay(),Config_minDelay());
-    Preview_setPixel(pr,100,100,Config_maxDelay());
-    Preview_setPixel(pr,110,110,Config_minDelay());
+    Preview_setPixel(pr,100,100,Config_maxDelay(), true);
+    Preview_setPixel(pr,110,110,Config_minDelay(), true);
     int bandWidth = Config_maxDelay() - Config_minDelay();
-    Preview_setPixel(pr,120,120,Config_minDelay()+bandWidth/2.0);
+    Preview_setPixel(pr, 120, 120, Config_minDelay()+bandWidth/2.0, true);
     Preview_save(pr);
     Preview_release(pr);
 

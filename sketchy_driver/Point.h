@@ -27,6 +27,8 @@ void Point_release(Point *p);
 void Point_retain(Point *p);
 void Point_setNull(Point *p);
 void Point_log(Point *p);
+float Point_needsPositionUpdateWith(float x, float y);
+int Point_shouldPositionUpdateWith(float x, float y);
 
 #endif
 

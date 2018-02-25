@@ -14,18 +14,27 @@ typedef enum stepperMotorDir{
     stepperMotorDirUp = 0,
     stepperMotorDirNone = 1,
     stepperMotorDirDown = 2
-    
+
 }StepperMotorDir;
+
+typedef enum horizontalMovementDir{
+
+    horizontalMovementDirLeft = 0,
+    horizontalMovementDirNone = 1,
+    horizontalMovementDirRight = 2
+
+}HorizontalMovementDir;
 
 typedef struct Step{
     int retainCount;
     char *type;
     StepperMotorDir leftengine;
     StepperMotorDir rightengine;
+    HorizontalMovementDir horengine;
 }Step;
 
-Step *Step_alloc(StepperMotorDir leftengine, StepperMotorDir rightengine);
-Step *Step_update(Step *obj,StepperMotorDir leftengine, StepperMotorDir rightengine);
+Step *Step_alloc(StepperMotorDir leftengine, StepperMotorDir rightengine, HorizontalMovementDir horengine);
+Step *Step_update(Step *obj,StepperMotorDir leftengine, StepperMotorDir rightengine, HorizontalMovementDir horengine);
 void Step_release(Step *obj);
 void Step_retain(Step *obj);
 

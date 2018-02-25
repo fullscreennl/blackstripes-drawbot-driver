@@ -8,6 +8,7 @@ typedef struct
     const char* email;
     int canvasWidth;
     int canvasHeight;
+    int exitStatus;
     float nibSize;
     const char *imagename;
     const char *motionScript;
@@ -36,6 +37,7 @@ const char* Config_getScriptName();
 const char* Config_getSVGName();
 const char* Config_getEmail();
 
+int Config_exitStatus();
 
 int Config_maxDelay();
 void Config_setMaxDelay(int value);

@@ -23,6 +23,29 @@
 
 Point *POINT;
 
+void moveTo(float x, float y){
+    Model_moveTo(x, y);
+}
+
+void home(){
+    Model_moveHome();
+}
+
+int __performAutoNulling(lua_State *L){
+    autoNull(0);
+    return 0;
+}
+
+int __performPowerDown(lua_State *L){
+    autoNull(2);
+    return 0;
+}
+
+int __performRefill(lua_State *L){
+    autoNull(1);
+    return 0;
+}
+
 int __moveTo(lua_State *L){
 
     DriverCommand *cmd = getCommand();
@@ -33,8 +56,7 @@ int __moveTo(lua_State *L){
 
     float x = lua_tonumber(L, 1);
     float y = lua_tonumber(L, 2);
-    Point_updateWithXY(POINT,x,y);
-    Model_moveTo(POINT);
+    moveTo(x, y);
 
     return 0;
 }
@@ -62,15 +84,18 @@ void loadLua(){
     lua_State *L;
 
     L = luaL_newstate();
-    luaL_openlibs(L); 
+    luaL_openlibs(L);
     lua_register(L,"moveTo",__moveTo);
-    lua_register(L,"penUp",__penUp); 
-    lua_register(L,"penDown",__penDown); 
+    lua_register(L,"autoNull",__performAutoNulling);
+    lua_register(L,"powerDown",__performPowerDown);
+    lua_register(L,"refill",__performRefill);
+    lua_register(L,"penUp",__penUp);
+    lua_register(L,"penDown",__penDown);
     lua_register(L,"canvasSize",__canvasSize); 
 
     if (luaL_loadfile(L, Config_getScriptName())){
         printf("luaL_loadfile() failed scriptname: %s\n",Config_getScriptName());   
-    }   
+    }
 
     if (lua_pcall(L, 0, 0, 0)){
         printf("lua_pcall() failed\n");  
@@ -82,8 +107,9 @@ void loadLua(){
 void runLuaScript(){
     POINT = Point_allocWithSteps(0 ,0);
     loadLua();
-    Model_moveHome();
+    home();
     Model_finish();
+    Model_null();
     Point_release(POINT);
 }
 
@@ -111,7 +137,7 @@ static void cubicBez(float x1, float y1, float x2, float y2,
 {
     float x12,y12,x23,y23,x34,y34,x123,y123,x234,y234,x1234,y1234;
     float d;
-    
+
     if (level > 12) return;
 
     x12 = (x1+x2)*0.5f;
@@ -132,21 +158,19 @@ static void cubicBez(float x1, float y1, float x2, float y2,
         cubicBez(x1,y1, x12,y12, x123,y123, x1234,y1234, tol, level+1); 
         cubicBez(x1234,y1234, x234,y234, x34,y34, x4,y4, tol, level+1); 
     } else {
-        Point_updateWithXY(POINT,x4,y4);
-        Model_moveTo(POINT);
+        moveTo(x4, y4);
     }
 }
 
 int drawPath(float* pts, int npts, char closed, float tol)
 {
-    
+
     if(pts[0] > MAX_CANVAS_SIZE_X || pts[1] > MAX_CANVAS_SIZE_Y || pts[0] < 0 || pts[1] < 0 ){
         updateDriverState(driverStateOutOfBoundsError,"","OUT_OF_BOUNDS_ERROR");
         return -1;
     }
 
-    Point_updateWithXY(POINT,pts[0],pts[1]);
-    Model_moveTo(POINT);
+    moveTo(pts[0], pts[1]);
     Model_setPenMode(penModeManualDown);
 
     int i;
@@ -160,8 +184,7 @@ int drawPath(float* pts, int npts, char closed, float tol)
     }
 
     if (closed) {
-        Point_updateWithXY(POINT,pts[0],pts[1]);
-        Model_moveTo(POINT);
+        moveTo(pts[0], pts[1]);
     }
 
     Model_setPenMode(penModeManualUp);
@@ -175,7 +198,7 @@ void runSVG(){
 
     Model_setPenMode(penModeManualUp);
 
-    float px = 0.1;
+    float px = 0.8;
     NSVGshape* shape;
     NSVGpath* path;
 
@@ -190,12 +213,13 @@ void runSVG(){
 
     for (shape = image->shapes; shape != NULL; shape = shape->next) {
         for (path = shape->paths; path != NULL; path = path->next) {
-            int status = drawPath(path->pts, path->npts, path->closed, px * 1.5f);
+            int status = drawPath(path->pts, path->npts, path->closed, px * 0.1f);
             if(status == -1){
                 nsvgDelete(image);
                 Model_setPenMode(penModeManualUp);
-                Model_moveHome();
+                home();
                 Model_finish();
+                Model_null();
                 Point_release(POINT);
                 return;
             }
@@ -203,8 +227,9 @@ void runSVG(){
     }
 
     nsvgDelete(image);
-    Model_moveHome();
+    home();
     Model_finish();
+    Model_null();
     Point_release(POINT);
 
 }
@@ -226,6 +251,7 @@ int main(int argc, char *argv[]){
 
     // 1) load the config
     Config_load(inifile);
+    int exitStatus = Config_exitStatus();
     updateDriverState(driverSatusCodeBusy,inifile,"DRIVER_STATE_BUSSY");
 
     int status;
@@ -241,7 +267,11 @@ int main(int argc, char *argv[]){
     if(state->statusCode < 3){
         // 4) tell the server we are done if we dont have errors.
         setCommand("none",commandCodeNone,0.0,0);
-        updateDriverState(driverSatusCodeIdle,"","DRIVER_STATE_IDLE");
+        if(exitStatus != driverSatusCodeIdle){
+            updateDriverState(exitStatus,"","DRIVER_STATE_NOT_NULLED");
+	}else{
+            updateDriverState(driverSatusCodeIdle,"","DRIVER_STATE_IDLE");
+        }
     }else{
         printf("ERROR code: %i , %s\n",state->statusCode, state->name);
     }

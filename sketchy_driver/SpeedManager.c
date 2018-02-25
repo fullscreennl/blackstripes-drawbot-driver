@@ -35,9 +35,10 @@ SpeedManager *SpeedManager_alloc()
     sm->currentY = home->y;
     sm->currentDirection = 0.0;
     sm->delay = Config_maxDelay();
-    sm->targetDelay = Config_maxDelay();
-    sm->delayPerDegree = (sm->delay - Config_minDelay()) / 180.0;
-    sm->delayPerDegreeMove = (sm->delay - Config_minMoveDelay()) / 180.0;
+    sm->max_delay = Config_maxDelay();
+    sm->targetDelay = Config_minDelay();
+    sm->delayPerDegree = (sm->delay - Config_minDelay()) / 90.0;
+    sm->delayPerDegreeMove = (sm->delay - Config_minMoveDelay()) / 90.0;
     sm->delayStepDraw = fabs((Config_maxDelay() - Config_minDelay()) / sm->length);
     sm->delayStepMove = fabs((Config_maxDelay() - Config_minMoveDelay()) / sm->length);
     sm->delayStep = sm->delayStepDraw;
@@ -51,8 +52,8 @@ SpeedManager *SpeedManager_alloc()
 void SpeedManager_resume(SpeedManager *sm){
     Config_reload();
     sm->length = Config_getLookaheadMM();
-    sm->delayPerDegree = (Config_maxDelay() - Config_minDelay()) / 180.0;
-    sm->delayPerDegreeMove = (Config_maxDelay() - Config_minMoveDelay()) / 180.0;
+    sm->delayPerDegree = (Config_maxDelay() - Config_minDelay()) / 90.0;
+    sm->delayPerDegreeMove = (Config_maxDelay() - Config_minMoveDelay()) / 90.0;
     sm->delayStepDraw = fabs((Config_maxDelay() - Config_minDelay()) / sm->length);
     sm->delayStepMove = fabs((Config_maxDelay() - Config_minMoveDelay()) / sm->length);
     sm->delayStep = sm->delayStepDraw;
@@ -61,12 +62,13 @@ void SpeedManager_resume(SpeedManager *sm){
 }
 
 void SpeedManager_copmuteDelay(SpeedManager *sm){
-    if(fabs(sm->targetDelay - sm->delay) < sm->delayStep){
+    int dstep = sm->delayStep; 
+    if(fabs(sm->targetDelay - sm->delay) < dstep){
         sm->delay = sm->targetDelay;
     }else if(sm->targetDelay > sm->delay){
-        sm->delay += sm->delayStep;
+        sm->delay += dstep;
     }else if(sm->targetDelay < sm->delay){
-        sm->delay -= sm->delayStep;
+        sm->delay -= dstep;
     }
 }
 
@@ -94,19 +96,21 @@ void SpeedManager_compute(SpeedManager *sm){
     int penChangeAhead = 0;
     int penUpAhead = 0;
     int penDownAhead = 0;
+    int headMovementAhead = 0;
     int solenoidState = curr->solenoidState;
 
     while(curr){
+        if(curr->headMovement){
+            headMovementAhead = 1;
+        }
         if(solenoidState != curr->solenoidState){
             penChangeAhead = 1;
             if(solenoidState == 0){
                 penUpAhead = 0;
                 penDownAhead = 1;
-                sm->delayStep = sm->delayStepMove;
             }else{
                 penUpAhead = 1;
                 penDownAhead = 0;
-                sm->delayStep = sm->delayStepDraw;
             }
         } 
         if(fabs(curr->direction) > max){
@@ -114,20 +118,32 @@ void SpeedManager_compute(SpeedManager *sm){
         }
         curr = curr->next;
     }
-
-    if(penChangeAhead && sm->usePenChangeInLookAhead){
-        sm->targetDelay = Config_maxDelay();
-    }else if(max != sm->max){
+    if(round(max) != round(sm->max)){
         sm->max = max;
-        if(solenoidState == 0){
-            sm->targetDelay = Config_minMoveDelay() + sm->max * sm->delayPerDegreeMove;
-        }else{
-            sm->targetDelay = Config_minDelay() + sm->max * sm->delayPerDegree;
+        if((penChangeAhead && sm->usePenChangeInLookAhead) || headMovementAhead){
+        //if((penChangeAhead && sm->usePenChangeInLookAhead)){
+            sm->targetDelay = Config_maxDelay();
+            sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
+            // printf("delay %i\n", sm->delayStep);
+        }else{ 
+            if(sm->max >= 90.0){
+                sm->targetDelay = Config_maxDelay();
+                sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
+            }else{
+                if(solenoidState == 0){
+                    sm->targetDelay = Config_minMoveDelay() + sm->max * sm->delayPerDegreeMove;
+                    sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
+                }else{
+                    sm->targetDelay = Config_minDelay() + sm->max * sm->delayPerDegree;
+                    sm->delayStep = fabs(sm->targetDelay - sm->delay) / sm->length;
+                }
+            }
+            // printf("max %f delay %i\n", sm->max, sm->delayStep);
         }
     }
 }
 
-void SpeedManager_append(SpeedManager *sm,float x,float y,int penMode,int solenoidState){
+void SpeedManager_append(SpeedManager *sm, float x, float y, float c, int penMode, int solenoidState, int headMovement){
 
     float dir = atan2(sm->currentY - y, sm->currentX - x);
 
@@ -140,6 +156,8 @@ void SpeedManager_append(SpeedManager *sm,float x,float y,int penMode,int soleno
     seg->next = NULL;
     seg->x = x;
     seg->y = y;
+    seg->c = c;
+    seg->headMovement = headMovement;
     seg->penMode = penMode;
     seg->solenoidState = solenoidState;
 
@@ -149,14 +167,14 @@ void SpeedManager_append(SpeedManager *sm,float x,float y,int penMode,int soleno
     sm->currentDirection = dir;
     sm->currentX = x;
     sm->currentY = y;
-    
+
     if(sm->queueLength >= sm->length-1){
 
         DriverCommand *cmd = getCommand();
 
         SpeedManager_copmuteDelay(sm);
         int computedDelay = sm->delay;
-        
+
         if(cmd->commandCode == commandCodePause){
             if(!pausingInitialized){
                 easeOutDelay = sm->delay;
@@ -173,7 +191,7 @@ void SpeedManager_append(SpeedManager *sm,float x,float y,int penMode,int soleno
             easeOutDelay = 0;
         }
 
-        sm->executeCallback(sm->bottom->x,sm->bottom->y,computedDelay,sm->queueLength,sm->bottom->penMode);
+        sm->executeCallback(sm->bottom->x,sm->bottom->y,sm->bottom->c,computedDelay,sm->queueLength,sm->bottom->penMode);
         PathSegment *newBottom = sm->bottom->next;
         free(sm->bottom);
         sm->bottom = newBottom;
@@ -181,12 +199,10 @@ void SpeedManager_append(SpeedManager *sm,float x,float y,int penMode,int soleno
     }else{
         sm->queueLength ++;
     }
-        
-    
 
 }
 
-void SpeedManager_setCallback(SpeedManager *sm,void (*executeCallback)(float x,float y, int delay,int cursor,int penMode)){
+void SpeedManager_setCallback(SpeedManager *sm,void (*executeCallback)(float x, float y, float c, int delay, int cursor, int penMode)){
     sm->executeCallback = executeCallback;
 }
 
@@ -209,7 +225,7 @@ void SpeedManager_reduceQueue(SpeedManager *sm){
     while(sm->queueLength > sm->length-1){
         SpeedManager_copmuteDelay(sm);
         int computedDelay = sm->delay;
-        sm->executeCallback(sm->bottom->x,sm->bottom->y,computedDelay,sm->queueLength,sm->bottom->penMode);
+        sm->executeCallback(sm->bottom->x, sm->bottom->y, sm->bottom->c, computedDelay, sm->queueLength, sm->bottom->penMode);
         PathSegment *newBottom = sm->bottom->next;
         free(sm->bottom);
         sm->bottom = newBottom;
@@ -222,14 +238,11 @@ void SpeedManager_finish(SpeedManager *sm){
     PathSegment *curr = sm->bottom;
     while(curr){
         SpeedManager_copmuteDelay(sm);
-        sm->executeCallback(curr->x,curr->y,sm->delay,sm->queueLength,curr->penMode);
+        sm->executeCallback(curr->x,curr->y,curr->c,sm->delay,sm->queueLength,curr->penMode);
         curr = curr->next;
     }
 
-#ifdef __PI__
-    alarm(1);
-#endif
-    
+
 }
 
 void SpeedManager_retain(SpeedManager *sm){
