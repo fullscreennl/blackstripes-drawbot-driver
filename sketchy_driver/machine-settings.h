@@ -22,7 +22,7 @@
 #define SHOULDER_HEIGHT 100.0
 #define LEFT_SHOULDER_POS_Y 100.0
 #define RIGHT_SHOULDER_POS_Y 100.0
-#define EXENSION1 90.0
+#define EXENSION1 98.0
 #define CANVAS_Y 330
 #define MOVEMENT_STEP ((4.71*13.0)/(6400.0)) //6400 microsteps, 13 tooth sprocket, rack pitch 4.71mm
 #define ANGLE_PER_STEP (360.0/(3200.0*40.0)) //12800 microsteps, 1:40 gearbox
